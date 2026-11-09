@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const content = serviceCategoryContent.find((entry) => entry.slug === slug);
     return buildMetadata({
       title: `${category.title} Firm in the UK`,
-      description: content?.summary,
+      description: content?.metaDescription ?? content?.summary,
       path: `/services/${slug}/`,
       index: routes.services.readyToIndex,
     });
@@ -115,7 +115,7 @@ export default async function ServiceOrCategoryPage({ params }: PageProps) {
     const jsonLd = [
       getServiceJsonLd({
         name: `${category.title} Firm in the UK`,
-        description: content.summary,
+        description: content.metaDescription ?? content.summary,
         path: `/services/${category.slug}/`,
       }),
       getBreadcrumbJsonLd(routes.home.label, breadcrumbTrail),

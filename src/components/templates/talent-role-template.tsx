@@ -10,8 +10,16 @@ import { FadeUp } from "@/components/motion/fade-up";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
 import { routes } from "@/config/routes";
 import type { RouteRecord } from "@/types/route";
-import type { TalentRoleContent } from "@/content/talent-roles-data";
-import { getService } from "@/config/services";
+import { talentRoleContent, type TalentRoleContent } from "@/content/talent-roles-data";
+import { getService, getServiceCategory } from "@/config/services";
+
+const PILLAR_SLUG = "recruitment-and-talent-acquisition-firm-in-the-uk";
+const MAX_RELATED_ROLES = 5;
+
+/** Lower-cases capitalised words for mid-sentence use while keeping acronyms such as IT, HR and RPO. */
+function toSentenceCase(value: string) {
+  return value.replace(/\b([A-Z])([a-z])/g, (_match, first: string, rest: string) => first.toLowerCase() + rest);
+}
 import { getSector } from "@/config/sectors";
 
 interface TalentRoleTemplateProps {
@@ -39,6 +47,14 @@ export function TalentRoleTemplate({ breadcrumbTrail, role }: TalentRoleTemplate
   const relatedSectors = role.relatedSectorSlugs
     .map((slug) => getSector(slug))
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  // Talent-acquisition SEO pass: link every role page back to the
+  // Recruitment & Talent Acquisition pillar and across to sibling roles in
+  // the same family, so no role page depends on sector pages alone for
+  // inbound links.
+  const pillar = getServiceCategory(PILLAR_SLUG);
+  const relatedRoles = talentRoleContent
+    .filter((entry) => entry.roleFamily === role.roleFamily && entry.slug !== role.slug)
+    .slice(0, MAX_RELATED_ROLES);
 
   return (
     <>
@@ -95,6 +111,36 @@ export function TalentRoleTemplate({ breadcrumbTrail, role }: TalentRoleTemplate
         </RevealHeading>
         <FadeUp delay={0.15}>
           <p className="mt-4 text-body-lg text-text-secondary">{role.recruitmentApproach}</p>
+          {pillar && (
+            <p className="mt-4 text-body text-text-secondary">
+              {relatedServices.length > 0 ? (
+                <>
+                  Apex HR usually supports {toSentenceCase(role.title)} hiring through{" "}
+                  {relatedServices.map((service, index) => (
+                    <span key={service.slug}>
+                      {index > 0 && (index === relatedServices.length - 1 ? " or " : ", ")}
+                      <Link
+                        href={`/services/${service.slug}/`}
+                        className="font-semibold text-navy underline underline-offset-4 hover:text-gold-ink"
+                      >
+                        {toSentenceCase(service.title)}
+                      </Link>
+                    </span>
+                  ))}
+                  , part of our wider{" "}
+                </>
+              ) : (
+                <>This role is supported through our wider </>
+              )}
+              <Link
+                href={`/services/${pillar.slug}/`}
+                className="font-semibold text-navy underline underline-offset-4 hover:text-gold-ink"
+              >
+                recruitment and talent acquisition services
+              </Link>
+              .
+            </p>
+          )}
         </FadeUp>
       </Section>
 
@@ -147,7 +193,29 @@ export function TalentRoleTemplate({ breadcrumbTrail, role }: TalentRoleTemplate
         </Section>
       )}
 
-      <Section tone="page">
+      {relatedRoles.length > 0 && (
+        <Section tone="page">
+          <RevealHeading>
+            <SectionHeading title={`Related ${toSentenceCase(role.roleFamily)} roles`} as="h3" />
+          </RevealHeading>
+          <StaggerContainer>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {relatedRoles.map((related) => (
+                <StaggerItem key={related.slug} as="li">
+                  <Link
+                    href={`/talent-acquisition/${related.slug}/`}
+                    className="inline-flex rounded-full border border-border-subtle bg-surface-card px-4 py-2 text-small text-navy underline-offset-4 hover:border-navy hover:underline"
+                  >
+                    {related.title}
+                  </Link>
+                </StaggerItem>
+              ))}
+            </ul>
+          </StaggerContainer>
+        </Section>
+      )}
+
+      <Section tone={relatedRoles.length > 0 ? "card" : "page"}>
         <RevealHeading>
           <SectionHeading title="Frequently asked questions" />
         </RevealHeading>

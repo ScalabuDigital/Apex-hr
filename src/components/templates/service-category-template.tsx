@@ -10,6 +10,9 @@ import { SlideInRight } from "@/components/motion/slide-in";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
 import { CategoryServiceExplorer } from "@/components/content/category-service-explorer";
 import { FaqWithContactForm } from "@/components/content/faq-with-contact-form";
+import { ContentGuideBand, RelatedInsightsList } from "@/components/content/content-guide";
+import { InlineLinkText } from "@/components/content/inline-link-text";
+import { talentRoleContent } from "@/content/talent-roles-data";
 import { serviceCategoryIcons } from "@/lib/service-category-icons";
 import { getServiceCategory } from "@/config/services";
 import { serviceContent } from "@/content/services-data";
@@ -59,6 +62,17 @@ export function ServiceCategoryTemplate({
   const relatedFamilies = category.relatedFamilySlugs
     .map((slug) => getServiceCategory(slug))
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  // Talent-acquisition SEO pass: hub → spoke links to every role page,
+  // grouped by role family in data order. Only rendered for a family that
+  // opts in via `showRoleDirectory`.
+  const roleGroups = category.showRoleDirectory
+    ? talentRoleContent.reduce<{ family: string; roles: typeof talentRoleContent }[]>((groups, role) => {
+        const group = groups.find((entry) => entry.family === role.roleFamily);
+        if (group) group.roles.push(role);
+        else groups.push({ family: role.roleFamily, roles: [role] });
+        return groups;
+      }, [])
+    : [];
 
   return (
     <div className="bg-surface-page">
@@ -123,9 +137,24 @@ export function ServiceCategoryTemplate({
           <a href="#services-in-family" className="text-caption font-bold text-text-secondary hover:text-navy">
             Services
           </a>
+          {category.lifecycle && category.lifecycle.length > 0 && (
+            <a href="#process" className="text-caption font-bold text-text-secondary hover:text-navy">
+              Process
+            </a>
+          )}
           <a href="#approach" className="text-caption font-bold text-text-secondary hover:text-navy">
             Our approach
           </a>
+          {category.guide && (
+            <a href="#guide" className="text-caption font-bold text-text-secondary hover:text-navy">
+              Guide
+            </a>
+          )}
+          {roleGroups.length > 0 && (
+            <a href="#roles" className="text-caption font-bold text-text-secondary hover:text-navy">
+              Roles
+            </a>
+          )}
           <a href="#outcomes" className="text-caption font-bold text-text-secondary hover:text-navy">
             Outcomes
           </a>
@@ -221,6 +250,38 @@ export function ServiceCategoryTemplate({
         </div>
       </section>
 
+      {category.lifecycle && category.lifecycle.length > 0 && (
+        <section id="process" className="p-8 sm:p-10 lg:p-14">
+          <RevealHeading>
+            <SectionKicker tone="light">{category.lifecycleKicker ?? "The process"}</SectionKicker>
+            <h2 className="mt-4 max-w-2xl font-display text-h1 font-bold text-navy">
+              {category.lifecycleHeading ?? "How the process works"}
+            </h2>
+          </RevealHeading>
+          {category.lifecycleIntro && (
+            <FadeUp delay={0.15}>
+              <p className="mt-4 max-w-3xl text-body text-text-secondary">
+                <InlineLinkText text={category.lifecycleIntro} />
+              </p>
+            </FadeUp>
+          )}
+          <StaggerContainer>
+            <ol className="mt-10 grid grid-cols-1 gap-8 border-t border-border-subtle pt-8 sm:grid-cols-2 lg:grid-cols-4">
+              {category.lifecycle.map((stage, index) => (
+                <StaggerItem key={stage.title} as="li" className="relative pl-6">
+                  <span aria-hidden="true" className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-gold" />
+                  <span className="font-display text-small text-gold-ink">{String(index + 1).padStart(2, "0")}</span>
+                  <h3 className="mt-3 font-display text-h4 font-bold text-navy">{stage.title}</h3>
+                  <p className="mt-2 text-body text-text-secondary">
+                    <InlineLinkText text={stage.detail} />
+                  </p>
+                </StaggerItem>
+              ))}
+            </ol>
+          </StaggerContainer>
+        </section>
+      )}
+
       <section id="approach" className="grid grid-cols-1 gap-10 bg-surface-card p-8 sm:p-10 lg:grid-cols-[0.8fr_1.2fr] lg:p-14">
         <div>
           <RevealHeading>
@@ -281,6 +342,42 @@ export function ServiceCategoryTemplate({
         </StaggerContainer>
       </section>
 
+      {category.guide && <ContentGuideBand guide={category.guide} id="guide" className="bg-surface-card" />}
+
+      {roleGroups.length > 0 && (
+        <section id="roles" className="bg-navy px-8 py-16 sm:px-10 lg:px-14 lg:py-20">
+          <RevealHeading className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-end lg:gap-14">
+            <div>
+              <SectionKicker tone="dark">Roles we recruit for</SectionKicker>
+              <h2 className="mt-4 max-w-md font-display text-h1 font-bold text-white">Recruitment by role</h2>
+            </div>
+            <p className="text-body text-white/70">
+              Each role page explains the typical hiring challenges, the skills employers usually assess and how
+              the search is approached, from regulated healthcare roles to engineering trades and senior leadership.
+            </p>
+          </RevealHeading>
+          <StaggerContainer className="mt-10 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {roleGroups.map((group) => (
+              <StaggerItem key={group.family}>
+                <h3 className="font-display text-h4 font-bold text-white">{group.family}</h3>
+                <ul className="mt-4 flex flex-col gap-2">
+                  {group.roles.map((role) => (
+                    <li key={role.slug}>
+                      <Link
+                        href={`/talent-acquisition/${role.slug}/`}
+                        className="text-body text-white/70 underline-offset-4 hover:text-gold hover:underline"
+                      >
+                        {role.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </section>
+      )}
+
       {relatedFamilies.length > 0 && (
         <section className="bg-surface-warm p-8 sm:p-10 lg:p-14">
           <RevealHeading>
@@ -305,6 +402,14 @@ export function ServiceCategoryTemplate({
               </StaggerItem>
             ))}
           </StaggerContainer>
+          {category.relatedInsights && category.relatedInsights.length > 0 && (
+            <div className="mt-10 max-w-3xl">
+              <h3 className="font-display text-h4 font-bold text-navy">Related insights</h3>
+              <div className="mt-2">
+                <RelatedInsightsList insights={category.relatedInsights} />
+              </div>
+            </div>
+          )}
         </section>
       )}
 

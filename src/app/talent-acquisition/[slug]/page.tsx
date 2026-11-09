@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const role = talentRoleContent.find((entry) => entry.slug === slug);
   return buildMetadata({
-    title: role ? `${role.title} Recruitment` : "Talent Acquisition",
+    title: role ? (role.seoTitle ?? `${role.title} Recruitment`) : "Talent Acquisition",
     description: role?.metaDescription,
     path: `/talent-acquisition/${slug}/`,
     // Confirmed per the Master Routes sheet's "Talent acquisition role" rows.
