@@ -93,7 +93,7 @@ export function JobApplicationForm({ vacancy }: { vacancy: Vacancy }) {
       setTurnstileToken("");
       setIdempotencyKey(null);
     } catch {
-      setSubmissionError(`We could not reach the application service. Your details have not been confirmed as received. You can contact Apex HR at ${siteConfig.contactEmail}.`);
+      setSubmissionError(`We could not reach the application service. Your details have not been confirmed as received. You can contact Apex HR at ${siteConfig.jobBoardContactEmail}.`);
     }
   });
 

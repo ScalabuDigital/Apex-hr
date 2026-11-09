@@ -135,8 +135,8 @@ export function VacancyArchive({ allVacancies, vacancies, filters, page, unavail
               <h3 className="font-display text-h4 font-bold text-navy">Vacancies are temporarily unavailable</h3>
               <p className="mt-2 text-body text-text-secondary">
                 Please try again later, or contact Apex HR at{" "}
-                <a className="font-semibold text-navy underline underline-offset-4" href={`mailto:${siteConfig.contactEmail}`}>
-                  {siteConfig.contactEmail}
+                <a className="font-semibold text-navy underline underline-offset-4" href={`mailto:${siteConfig.jobBoardContactEmail}`}>
+                  {siteConfig.jobBoardContactEmail}
                 </a>.
               </p>
             </div>
