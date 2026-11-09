@@ -579,7 +579,7 @@ function buildManifest(): ContentManifestEntry[] {
     primaryKeyword: "HR case studies",
     metaTitle: "Case Studies | Apex HR",
     metaDescription:
-      "Illustrative HR and recruitment scenarios showing how Apex HR approaches common employer challenges, from scale-up hiring to outsourced HR.",
+      "HR and recruitment scenarios showing how Apex HR approaches common employer challenges, from scale-up hiring to outsourced HR.",
     h1: "How Apex HR approaches employer challenges",
     legalReviewRequired: false,
   });

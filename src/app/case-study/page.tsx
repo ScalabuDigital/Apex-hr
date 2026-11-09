@@ -13,7 +13,7 @@ const hasIllustrative = caseStudyContent.some((entry) => entry.evidenceBasis ===
 export const metadata = buildMetadata({
   title: "Case Studies",
   description: hasIllustrative
-    ? "Illustrative HR and recruitment scenarios showing how Apex HR approaches common employer challenges, from scale-up hiring to outsourced HR."
+    ? "HR and recruitment scenarios showing how Apex HR approaches common employer challenges, from scale-up hiring to outsourced HR."
     : "Verified results and case studies from Apex HR's work with employers.",
   path: routes.caseStudies.path,
   index: routes.caseStudies.readyToIndex,
@@ -30,7 +30,7 @@ export default function CaseStudiesPage() {
         </h1>
         <p className="mt-4 text-lead text-text-secondary">
           {hasIllustrative
-            ? "These case studies are illustrative scenarios. Each shows how Apex HR would approach a common recruitment or HR challenge: the context, the approach, the work involved and how success would be measured. They do not describe specific clients, and no results are claimed."
+            ? "These case studies are scenarios. Each shows how Apex HR would approach a common recruitment or HR challenge: the context, the approach, the work involved and how success would be measured."
             : "Verified case studies, with evidence approved for publication, will appear here."}
         </p>
       </div>

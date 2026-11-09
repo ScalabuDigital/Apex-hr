@@ -298,7 +298,7 @@ Individual location pages' breadcrumbs now run Home → Locations → [location]
 **Controls:**
 
 - Every illustrative record has `evidenceBasis: "illustrative"`, `contentStatus: "ai-draft"` and `reviewStatus: "stakeholder-review-required"`.
-- The label "Illustrative scenario" is visible on every case-study card, in each page hero (with a disclosure note), and in each meta description.
+- The label "Scenario" is visible on every case-study card and in each page hero, and each meta description starts "Scenario:". Per later user instruction (9 November 2026), the separate "not a specific client" disclosure note and "Is this a real client project?" FAQ were removed; the label, the conditional "how Apex HR would…" framing and the "no results are claimed" results intro remain. Per later user instruction (9 November 2026), public copy never uses the word "illustrative"; internal identifiers (`evidenceBasis: "illustrative"`) keep it.
 - Results sections are framed as "how success would be measured", never as achieved outcomes.
 - Third-party statistics are attributed inline and listed under "Sources and further reading", with a note that they describe the UK market, not Apex HR results.
 - No `Review`, `AggregateRating` or testimonial markup. Pages emit `Article` + `BreadcrumbList` only, plus `FAQPage` once indexable.

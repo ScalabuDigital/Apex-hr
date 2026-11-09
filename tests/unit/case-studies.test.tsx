@@ -113,9 +113,8 @@ describe("case-study records", () => {
 describe("illustrative evidence rules (D-020)", () => {
   const illustrative = caseStudyContent.filter((cs) => cs.evidenceBasis === "illustrative");
 
-  it.each(illustrative.map((cs) => [cs.slug, cs]))("%s discloses that it is illustrative in its meta description and FAQs", (_slug, cs) => {
-    expect(cs.metaDescription).toMatch(/^Illustrative scenario:/);
-    expect(cs.faqs.some((f) => /illustrative scenario/i.test(f.answer))).toBe(true);
+  it.each(illustrative.map((cs) => [cs.slug, cs]))("%s is labelled as a scenario in its meta description and claims no results", (_slug, cs) => {
+    expect(cs.metaDescription).toMatch(/^Scenario:/);
     expect(cs.results.intro).toMatch(/no results are claimed/i);
   });
 
@@ -129,17 +128,41 @@ describe("illustrative evidence rules (D-020)", () => {
     }
   });
 
-  it.each(illustrative.map((cs) => [cs.slug, cs]))("%s renders the visible disclosure and a single H1", (_slug, cs) => {
-    const { container, getByRole } = render(
+  it.each(illustrative.map((cs) => [cs.slug, cs]))("%s renders the visible Scenario label and a single H1", (_slug, cs) => {
+    const { container } = render(
       <CaseStudyTemplate breadcrumbTrail={[routes.caseStudies]} caseStudy={cs} indexable={false} />,
     );
     expect(container.querySelectorAll("h1")).toHaveLength(1);
-    expect(getByRole("note", { name: ILLUSTRATIVE_LABEL })).toBeTruthy();
+    expect(container.textContent).toContain(`Case study · ${ILLUSTRATIVE_LABEL}`);
     expect(container.textContent).toContain("no results are claimed");
     // No FAQPage, Review or rating schema on a noindex illustrative page.
     const schemas = [...container.querySelectorAll('script[type="application/ld+json"]')].map((s) => s.textContent ?? "");
     for (const json of schemas) expect(json).not.toMatch(/FAQPage|Review|AggregateRating/);
   });
+
+  // User instruction (9 November 2026): public copy uses "Scenario", never
+  // the word "illustrative" (internal identifiers may keep it).
+  it("never shows the word 'illustrative' to visitors", async () => {
+    const { CaseStudiesSection } = await import("@/components/sections/case-studies-section");
+    const texts: string[] = [];
+    for (const cs of caseStudyContent) {
+      const { container, unmount } = render(
+        <CaseStudyTemplate breadcrumbTrail={[routes.caseStudies]} caseStudy={cs} indexable={false} />,
+      );
+      texts.push(container.textContent ?? "", cs.metaDescription, cs.seoTitle);
+      unmount();
+    }
+    const hub = render(<CaseStudiesPage />);
+    texts.push(hub.container.textContent ?? "");
+    hub.unmount();
+    texts.push(render(<CaseStudiesSection />).container.textContent ?? "");
+    for (const entry of contentManifest) texts.push(entry.metaDescription, entry.h1);
+    for (const text of texts) {
+      expect(text).not.toMatch(/illustrative/i);
+      // User instruction: no "not a specific client" disclaimer either.
+      expect(text).not.toMatch(/specific client|real client project/i);
+    }
+  }, 30000);
 });
 
 describe("coverage", () => {
@@ -176,6 +199,18 @@ describe("route governance and sitemap", () => {
 });
 
 describe("integration points", () => {
+  it("the homepage section shows labelled cards and no 'results' heading while all are illustrative", async () => {
+    const { CaseStudiesSection } = await import("@/components/sections/case-studies-section");
+    const { container } = render(<CaseStudiesSection />);
+    const cards = container.querySelectorAll('a[href^="/case-study/"]');
+    expect(cards.length).toBe(3);
+    expect(container.textContent).toContain(ILLUSTRATIVE_LABEL);
+    expect(container.textContent).not.toMatch(/Results for the employers/);
+    expect(container.textContent).not.toMatch(/Verified case studies with approved evidence/);
+    // Hub stays noindex, so no "View all" link to it.
+    expect(container.querySelector(`a[href="${routes.caseStudies.path}"]`)).toBeNull();
+  });
+
   it("the hub lists every case study with its illustrative label", () => {
     const { container } = render(<CaseStudiesPage />);
     expect(container.querySelectorAll("h1")).toHaveLength(1);

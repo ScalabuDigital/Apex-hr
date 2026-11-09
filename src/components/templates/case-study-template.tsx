@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink, Info } from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SectionKicker } from "@/components/ui/section-kicker";
@@ -16,7 +16,6 @@ import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
 import { getService } from "@/config/services";
 import { getSector } from "@/config/sectors";
 import {
-  ILLUSTRATIVE_DISCLOSURE,
   ILLUSTRATIVE_LABEL,
   getRelatedCaseStudies,
   toCaseStudyPreview,
@@ -66,20 +65,6 @@ export function CaseStudyTemplate({ breadcrumbTrail, caseStudy, indexable }: Cas
             {caseStudy.sectorLabel}
           </p>
         </RevealHeading>
-        {isIllustrative && (
-          <FadeUp delay={0.1}>
-            <div
-              role="note"
-              aria-label={ILLUSTRATIVE_LABEL}
-              className="mt-8 flex max-w-(--container-reading) items-start gap-3 border border-dashed border-border-strong p-6"
-            >
-              <Info aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-text-secondary" />
-              <p className="text-body text-text-secondary">
-                {ILLUSTRATIVE_DISCLOSURE}
-              </p>
-            </div>
-          </FadeUp>
-        )}
         <FadeUp delay={0.15} className="mt-8 flex flex-wrap gap-4">
           <LinkButton href={caseStudy.cta.href} variant="primary" surface="light">
             {caseStudy.cta.label}
