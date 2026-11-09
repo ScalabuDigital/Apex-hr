@@ -112,8 +112,14 @@ production; never prefix credentials with `NEXT_PUBLIC_`.
 | `WORDPRESS_APPLICATIONS_USERNAME` | Dedicated WordPress integration username |
 | `WORDPRESS_APPLICATIONS_APP_PASSWORD` | WordPress Application Password for that user; keep only in deployment secrets |
 | `NEXT_PUBLIC_SITE_URL` | Public site origin used to verify Turnstile and construct source-page attribution |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public Cloudflare Turnstile widget key |
-| `TURNSTILE_SECRET_KEY` | Server-only Turnstile verification secret |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public Cloudflare Turnstile **Site Key** (24 characters). Inlined into browser JavaScript at build time |
+| `TURNSTILE_SECRET_KEY` | Server-only Turnstile verification **Secret Key** (35 characters). Never put it in a `NEXT_PUBLIC_` variable |
+
+`next.config.ts` runs `assertTurnstileSiteKeyIsPublic()`
+(`src/lib/security/turnstile-key.ts`): `next dev` and `next build` stop with an
+error if `NEXT_PUBLIC_TURNSTILE_SITE_KEY` holds a 35-character secret-format
+value or equals `TURNSTILE_SECRET_KEY`. The error never prints the key. Because
+the site key is inlined at build time, redeploy after changing either variable.
 
 The Next.js API validates the existing form schema and CV, verifies Turnstile
 server-side, and forwards the multipart application with an idempotency UUID.
