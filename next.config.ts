@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 import { redirectRules } from "./src/config/redirects";
+import { assertTurnstileSiteKeyIsPublic } from "./src/lib/security/turnstile-key";
+
+// Refuse to start or build if the Turnstile secret key has been placed in the
+// public NEXT_PUBLIC_TURNSTILE_SITE_KEY variable (it would be inlined into
+// browser JavaScript). See src/lib/security/turnstile-key.ts.
+assertTurnstileSiteKeyIsPublic();
 
 const nextConfig: NextConfig = {
   // docs/URL-DECISION-REGISTER.md D-010: canonical URLs use a trailing
