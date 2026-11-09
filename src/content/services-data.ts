@@ -1,4 +1,4 @@
-import type { ContentFaqItem } from "@/types/content";
+import type { ContentFaqItem, ContentGuide, RelatedInsightLink } from "@/types/content";
 
 /**
  * Original first-draft service content, authored under the explicit
@@ -57,6 +57,23 @@ export interface ServiceCategoryContent {
    * FAQs — not the same questions repeated across every family page.
    */
   faqs: ContentFaqItem[];
+  /**
+   * Talent-acquisition SEO pass (docs/seo/talent-acquisition-research.md).
+   * All optional and canonical-family-page-only: never read by
+   * CategoryLocationTemplate, so category-location pages are unchanged.
+   * `metaDescription` overrides `summary` for the meta tag only — `summary`
+   * stays the visible hero copy and the category-location meta source.
+   */
+  metaDescription?: string;
+  lifecycleKicker?: string;
+  lifecycleHeading?: string;
+  lifecycleIntro?: string;
+  /** Ordered process stages; `detail` may contain inline links. */
+  lifecycle?: ServiceCategoryApproachStep[];
+  guide?: ContentGuide;
+  /** Renders the grouped hub-to-role-page directory. */
+  showRoleDirectory?: boolean;
+  relatedInsights?: RelatedInsightLink[];
 }
 
 export interface ServiceContent {
@@ -105,6 +122,13 @@ export interface ServiceContent {
    * `additionalFaqs` is never read by any location template.
    */
   additionalFaqs?: ContentFaqItem[];
+  /**
+   * Talent-acquisition SEO pass: canonical-page-only explanatory guide
+   * (H2 + H3 subsections). Never read by ServiceLocationTemplate.
+   */
+  guide?: ContentGuide;
+  /** Verified, published Apex insight articles relevant to this service. */
+  relatedInsights?: RelatedInsightLink[];
 }
 
 export const serviceCategoryContent: ServiceCategoryContent[] = [
@@ -228,6 +252,138 @@ export const serviceCategoryContent: ServiceCategoryContent[] = [
         answer:
           "Yes. Recruitment delivered through this family can sit alongside outsourced HR support, so onboarding, contracts and policies are handled by the same partner.",
       },
+      {
+        id: "ta-vs-recruitment",
+        question: "What is the difference between talent acquisition and recruitment?",
+        answer:
+          "Recruitment is the process of filling a specific vacancy, from advert to offer. Talent acquisition is the wider, longer-term discipline around it: workforce planning, employer brand, building talent pipelines before roles open, consistent assessment, onboarding and measuring whether hires succeed. Most organisations need both, and the right balance depends on how often and how predictably they hire.",
+      },
+      {
+        id: "which-service",
+        question: "How do I choose the right recruitment service for my organisation?",
+        answer:
+          "Start with three questions: is the role permanent or time-limited, how senior or scarce is it, and is this one hire or a continuing programme? A single permanent role usually suits Permanent Recruitment; senior or confidential appointments suit Executive Search; time-limited needs suit Contract Staffing; sustained or high-volume hiring suits RPO; and a planned intake of entry-level talent suits Graduate Schemes & Early Careers Design. Apex HR can help you decide during an initial conversation.",
+      },
+      {
+        id: "workforce-planning-first",
+        question: "Do we need a workforce plan before we start recruiting?",
+        answer:
+          "Not for a single replacement hire, but for growth, restructuring or repeated hiring a workforce plan makes recruitment far more effective. It clarifies which roles and skills are needed, when, and whether they are best hired, developed internally or resourced flexibly, so recruitment budgets go to the right places.",
+      },
+      {
+        id: "measure-success",
+        question: "How should we measure whether our recruitment is working?",
+        answer:
+          "Useful measures include time to hire, cost per hire, offer-acceptance rate, candidate experience, hiring-manager satisfaction and quality of hire, which looks at how new starters perform and whether they stay through probation and their first year. Choose a small set you can track consistently rather than every possible metric.",
+      },
+      {
+        id: "uk-compliance",
+        question: "What legal checks apply when recruiting in the UK?",
+        answer:
+          "There is no single legally required recruitment process, but employers must follow discrimination and data protection law throughout, and must check a candidate's right to work in the UK before employment starts. Some roles also need DBS checks, professional registration or licence checks. Apex HR builds these steps into the process; formal legal questions should be confirmed with a qualified employment lawyer.",
+      },
+    ],
+    metaDescription:
+      "Talent acquisition for UK employers: workforce planning, sourcing, assessment and onboarding across permanent, executive, contract, RPO and graduate hiring.",
+    lifecycleKicker: "The talent acquisition lifecycle",
+    lifecycleHeading: "How does the talent acquisition process work?",
+    lifecycleIntro:
+      "Talent acquisition connects every step from deciding what capability the organisation needs to making sure new starters settle and stay. The eight stages below apply whether you are filling one role or running a full hiring programme; the specialist service that leads each stage depends on the type of hire.",
+    lifecycle: [
+      {
+        title: "Workforce planning",
+        detail:
+          "Translate business plans into the roles, skills and headcount you need, and decide what to hire, develop or resource flexibly. Larger or longer-term plans are supported through [strategic workforce planning](/services/strategic-workforce-planning-firm-in-the-uk/).",
+      },
+      {
+        title: "Vacancy definition",
+        detail:
+          "Agree why the role exists, what success looks like and the essential and desirable criteria, captured in a job description and person specification that every interviewer works from.",
+      },
+      {
+        title: "Employer brand and attraction",
+        detail:
+          "Decide where suitable candidates are and what will persuade them to apply. A clear [employer brand and employee value proposition](/services/employer-branding-and-employee-value-proposition-evp-firm-in-the-uk/) makes every advert and approach more credible.",
+      },
+      {
+        title: "Sourcing",
+        detail:
+          "Combine advertising, talent pools and direct approach. Senior and scarce roles usually need [executive search](/services/executive-search-firm-in-the-uk/) to reach people who are not actively looking.",
+      },
+      {
+        title: "Screening and assessment",
+        detail:
+          "Assess candidates consistently against the agreed criteria using structured interviews, work samples or, for early-careers intakes, [graduate assessment centres](/services/graduate-schemes-and-early-careers-design-firm-in-the-uk/).",
+      },
+      {
+        title: "Selection and offer",
+        detail:
+          "Make a fair, evidence-based decision, complete references and right to work checks, and manage the offer and any counter-offer. This is the core of [permanent recruitment](/services/permanent-recruitment-firm-in-the-uk/) and [contract staffing](/services/contract-staffing-firm-in-the-uk/).",
+      },
+      {
+        title: "Onboarding",
+        detail:
+          "Keep in touch between offer and start date, then give new starters a structured induction, clear early objectives and a well-run probation period.",
+      },
+      {
+        title: "Retention and measurement",
+        detail:
+          "Review quality of hire, early attrition and hiring-manager feedback, and feed what you learn back into planning. Organisations hiring continuously often run this cycle through [recruitment process outsourcing (RPO)](/services/recruitment-process-outsourcing-rpo-firm-in-the-uk/).",
+      },
+    ],
+    guide: {
+      kicker: "Talent acquisition explained",
+      heading: "What UK employers need to know about talent acquisition",
+      intro:
+        "Most hiring problems start before a vacancy is advertised: unclear requirements, no pipeline, inconsistent interviews or no way of knowing whether past hires worked out. These are the building blocks of a talent acquisition approach that holds up.",
+      sections: [
+        {
+          heading: "Talent acquisition vs recruitment",
+          paragraphs: [
+            "Recruitment fills a specific vacancy. Talent acquisition is the strategic discipline around recruitment: anticipating future needs, building relationships with potential candidates before roles open, protecting the employer brand and measuring outcomes after people join. Our article on [talent acquisition vs recruitment vs talent management](/talent-acquisition-vs-recruitment-vs-talent-management/) explains where each one starts and stops.",
+          ],
+        },
+        {
+          heading: "Strategic workforce planning and skills-gap analysis",
+          paragraphs: [
+            "Workforce planning compares the capability the organisation has with the capability its plans require, then decides how to close the gaps: hire permanently, hire on a contract or interim basis, develop existing people or redesign roles. The CIPD's [Resourcing and talent planning report 2026](https://www.cipd.org/en/about/press-releases/rtp-2026/) found that 46% of organisations still take an ad hoc approach to recruitment, which is why planning is often the quickest improvement available.",
+            "Where gaps sit in leadership roles, workforce planning links directly to [succession planning and talent mapping](/services/succession-planning-and-talent-mapping-firm-in-the-uk/).",
+          ],
+        },
+        {
+          heading: "Employer branding, candidate attraction and talent pipelines",
+          paragraphs: [
+            "Candidates compare employers on reputation, reward, flexibility, development and how they are treated during the process. A consistent employer brand, accurate job adverts and a respectful candidate experience improve both the number and the suitability of applicants. Talent pipelines (people who have been assessed or engaged before a role opens) shorten future hiring, particularly for roles you recruit repeatedly.",
+          ],
+        },
+        {
+          heading: "Recruitment technology and applicant tracking systems",
+          paragraphs: [
+            "An applicant tracking system (ATS) keeps candidate records, communication and interview feedback in one place and makes reporting possible. The value comes from a clear process configured in the system, not from the software alone; [HR software selection](/services/hr-software-selection-firm-in-the-uk/) and [HRIS implementation](/services/hris-implementation-firm-in-the-uk/) help where recruitment technology is part of a wider HR systems change. Any automated screening should keep meaningful human review of decisions.",
+          ],
+        },
+        {
+          heading: "Measuring recruitment performance and quality of hire",
+          paragraphs: [
+            "Time to hire and cost per hire show efficiency; quality of hire shows effectiveness, using measures such as new-starter performance, probation outcomes and first-year retention. The same CIPD survey found only 19% of organisations calculate the return on investment of their recruitment processes. [People analytics and HR dashboards](/services/people-analytics-and-hr-dashboards-firm-in-the-uk/) can bring these measures together.",
+          ],
+        },
+        {
+          heading: "Fair, compliant hiring in the UK",
+          paragraphs: [
+            "[Acas](https://www.acas.org.uk/recruitment) notes there is no recruitment process set by law, but discrimination and data protection law apply at every stage. Employers must [check a job applicant's right to work](https://www.gov.uk/check-job-applicant-right-to-work) before employment starts, and should tell candidates how their information is used and how long it is kept, in line with the [ICO's recruitment and selection guidance](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/employment/recruitment-and-selection/). This content is general information rather than legal advice.",
+          ],
+        },
+      ],
+    },
+    showRoleDirectory: true,
+    relatedInsights: [
+      {
+        title: "Talent acquisition vs recruitment vs talent management",
+        path: "/talent-acquisition-vs-recruitment-vs-talent-management/",
+      },
+      { title: "What is talent acquisition and retention in HRM?", path: "/what-is-talent-acquisition-and-retention-in-hrm/" },
+      { title: "RPO vs recruitment agency: which suits a scaling team?", path: "/rpo-vs-recruitment-agency/" },
     ],
   },
   {
@@ -1090,7 +1246,7 @@ export const serviceContent: ServiceContent[] = [
   {
     slug: "permanent-recruitment-firm-in-the-uk",
     categorySlug: "recruitment-and-talent-acquisition-firm-in-the-uk",
-    metaDescription: "Apex HR is a permanent recruitment firm helping UK employers hire confidently, from role definition through to offer, backed by genuine HR expertise.",
+    metaDescription: "Apex HR is a permanent recruitment firm for UK employers: role scoping, candidate sourcing, structured interviews, offer and onboarding, backed by HR expertise.",
     primaryKeyword: "permanent recruitment",
     heroSummary: "Permanent recruitment support from role definition through to offer, informed by genuine HR expertise, not just CV matching.",
     employerChallenge:
@@ -1141,13 +1297,94 @@ export const serviceContent: ServiceContent[] = [
         answer:
           "You do. Apex HR supports sourcing, screening and process, but the final hiring decision and offer remain with your organisation.",
       },
+      {
+        id: "permanent-fees",
+        question: "How are permanent recruitment fees usually structured?",
+        answer:
+          "UK permanent recruitment is commonly charged either on a contingency basis (a fee payable only if you hire a candidate introduced by the recruiter) or on a retained or staged basis, where part of the fee is paid up front in return for a dedicated search. Fees are often calculated as a percentage of first-year salary. Apex HR confirms its fee basis, payment stages and any rebate terms in writing before work starts.",
+      },
+      {
+        id: "permanent-vs-contract",
+        question: "Should we hire permanently or use a contractor?",
+        answer:
+          "Hire permanently when the work is ongoing, the knowledge needs to stay in the organisation and you want to invest in someone's development. A contract or interim hire suits defined projects, cover for absence, uncertain demand or a need for specialist skills for a limited period. Some employers use a contract hire to cover a gap while a permanent search runs.",
+      },
+      {
+        id: "counter-offers",
+        question: "How do you reduce the risk of a candidate accepting a counter-offer?",
+        answer:
+          "By understanding each candidate's motivation for moving early, discussing the possibility of a counter-offer before an offer is made, keeping the process moving and staying in contact during the notice period. The risk cannot be removed entirely, but it can be surfaced and managed.",
+      },
+      {
+        id: "competency-interviews",
+        question: "What is a competency-based interview?",
+        answer:
+          "A competency-based interview asks candidates for specific examples of how they have handled situations relevant to the role, such as resolving a conflict or delivering to a deadline, and scores answers against agreed criteria. Used consistently by every interviewer, it makes decisions easier to compare and to justify.",
+      },
     ],
-    legalReviewRequired: false,
+    guide: {
+      kicker: "Permanent recruitment explained",
+      heading: "How permanent recruitment works, from vacancy brief to appointment",
+      intro:
+        "A good permanent hire depends less on the number of CVs and more on how clearly the role is defined and how consistently candidates are assessed. This is how Apex HR runs a permanent recruitment process, and what employers can do to make each stage work.",
+      sections: [
+        {
+          heading: "1. Vacancy briefing and role scoping",
+          paragraphs: [
+            "Every search starts with why the role exists, what the first twelve months should deliver, where it sits in the team and what the realistic salary range and working pattern are. Testing these early avoids the most common reason searches stall: a brief that the market cannot meet.",
+          ],
+        },
+        {
+          heading: "2. Job description and person specification",
+          paragraphs: [
+            "The job description sets out the purpose and responsibilities of the role; the person specification sets out the skills, experience and qualifications needed to do it, split into essential and desirable criteria. Every criterion should be justifiable for the job, because unnecessary requirements narrow the field and can disadvantage some groups of candidates.",
+          ],
+        },
+        {
+          heading: "3. Candidate sourcing and screening",
+          paragraphs: [
+            "Sourcing combines job adverts, existing networks and direct approach to people who are not actively applying. Screening then tests applications against the person specification, followed by a short screening call to confirm motivation, notice period, salary expectations and right to work before a shortlist is presented.",
+          ],
+        },
+        {
+          heading: "4. Structured and competency-based interviews",
+          paragraphs: [
+            "Structured interviews ask every candidate the same core questions and score answers against agreed criteria. Competency-based questions, work samples or short technical exercises can be added where they reflect the job. Two trained interviewers and written scoring make the decision easier to compare, explain and defend.",
+          ],
+        },
+        {
+          heading: "5. Offer, checks and counter-offers",
+          paragraphs: [
+            "Before a start date is confirmed, employers must [check the candidate's right to work in the UK](https://www.gov.uk/check-job-applicant-right-to-work), and should complete references and any role-specific checks such as DBS or professional registration. Managing the offer conversation and any counter-offer from the current employer is often where hires are won or lost.",
+          ],
+        },
+        {
+          heading: "6. Onboarding, probation and retention",
+          paragraphs: [
+            "Staying in touch through the notice period, a planned induction and clear probation objectives reduce early leaving. Probation matters more as the law changes: according to the [GOV.UK Employment Rights Act timeline](https://www.gov.uk/government/publications/implementing-the-plan-to-make-work-pay-and-employment-rights-act/plan-to-make-work-pay-and-employment-rights-act-timeline-update), the qualifying period for unfair dismissal protection reduces from two years to six months for dismissals from 1 January 2027. Employers should take advice on how this affects their probation arrangements.",
+          ],
+        },
+        {
+          heading: "Permanent recruitment, executive search or contract staffing?",
+          paragraphs: [
+            "Permanent recruitment suits most ongoing roles. Senior or confidential appointments are better served by [executive search](/services/executive-search-firm-in-the-uk/); time-limited needs by [contract staffing](/services/contract-staffing-firm-in-the-uk/); and planned entry-level intakes by [graduate schemes and early careers design](/services/graduate-schemes-and-early-careers-design-firm-in-the-uk/). Our guide to [contract staffing vs permanent staffing](/contract-staffing-vs-permanent-staffing/) compares the two in more detail, and the [recruitment and talent acquisition](/services/recruitment-and-talent-acquisition-firm-in-the-uk/) overview shows how they fit together.",
+          ],
+        },
+      ],
+    },
+    relatedInsights: [
+      {
+        title: "Permanent recruitment solutions: how the hiring process works in the UK",
+        path: "/permanent-recruitment-solutions-how-the-hiring-process-works-in-the-uk/",
+      },
+      { title: "Contract staffing vs permanent staffing: key differences", path: "/contract-staffing-vs-permanent-staffing/" },
+    ],
+    legalReviewRequired: true,
   },
   {
     slug: "executive-search-firm-in-the-uk",
     categorySlug: "recruitment-and-talent-acquisition-firm-in-the-uk",
-    metaDescription: "Apex HR is an executive search firm helping UK employers make senior and leadership appointments, combining targeted search with genuine HR insight.",
+    metaDescription: "Apex HR is an executive search firm for UK C-suite and senior leadership hiring: confidential search, market mapping, leadership assessment and onboarding.",
     primaryKeyword: "executive search",
     heroSummary: "A targeted, confidential search approach for senior and leadership hires where the wrong appointment carries real organisational risk.",
     employerChallenge:
@@ -1198,13 +1435,88 @@ export const serviceContent: ServiceContent[] = [
         answer:
           "Search is conducted through genuine market mapping and direct approach for each brief, rather than a claimed proprietary or exclusive candidate database.",
       },
+      {
+        id: "retained-vs-contingent",
+        question: "What is the difference between retained and contingent executive recruitment?",
+        answer:
+          "In a retained search the firm is engaged exclusively and paid in stages to run a defined search, which funds market mapping, direct approach and in-depth assessment. Contingent recruitment is paid only on placement and usually relies more on candidates who are already looking. Senior and confidential appointments are normally run on a retained basis.",
+      },
+      {
+        id: "market-mapping",
+        question: "What is market mapping in executive search?",
+        answer:
+          "Market mapping is the research stage of a search: identifying the organisations, teams and individuals who hold the experience the role needs, whether or not they are looking for a move. It produces the longlist for direct approach and gives you a view of the talent market, including how comparable roles are structured elsewhere.",
+      },
+      {
+        id: "headhunting-vs-search",
+        question: "Is executive search the same as headhunting?",
+        answer:
+          "Headhunting, meaning approaching people directly rather than waiting for applications, is one part of executive search. A full search also includes defining the leadership brief, researching the market, structured leadership assessment, referencing and supporting the offer and transition into the role.",
+      },
+      {
+        id: "leadership-assessment",
+        question: "How are senior candidates assessed?",
+        answer:
+          "Typically through structured interviews against a success profile agreed with the board or leadership team, evidence of results in comparable roles, stakeholder or panel interviews and, where useful, psychometric or leadership assessments interpreted by a qualified practitioner. Thorough referencing, often taken with the candidate's agreement before final interview, completes the picture.",
+      },
+    ],
+    guide: {
+      kicker: "Executive search explained",
+      heading: "How executive search works for senior and C-suite appointments",
+      intro:
+        "Executive search is a research-led, usually retained approach to hiring senior leaders. It exists because the strongest candidates for board, C-suite and director roles are rarely applying for jobs; they have to be identified, approached and persuaded, often in confidence.",
+      sections: [
+        {
+          heading: "Executive search vs traditional recruitment",
+          paragraphs: [
+            "Traditional recruitment advertises a vacancy and selects from the people who respond. Executive search maps the whole market for a role, approaches the people best placed to do it and assesses them in depth against a leadership brief. It takes longer and costs more per hire, which is why it is reserved for appointments where the impact of a wrong decision is high. Our article on [executive search vs a recruitment agency](/executive-search-vs-recruitment-agency-which-is-better-for-senior-hires/) compares the two for senior hires.",
+          ],
+        },
+        {
+          heading: "The retained search process",
+          paragraphs: [
+            "A typical search moves through a leadership brief and success profile; market mapping and a longlist; confidential direct approach; first-stage assessment; a shortlist of candidates presented with written assessments; client interviews; referencing; and offer, resignation and transition support. You see progress at each stage rather than only at shortlist.",
+          ],
+        },
+        {
+          heading: "Confidential and replacement searches",
+          paragraphs: [
+            "When an incumbent has not yet left, or a new role signals a strategic change, the search can be run without naming the organisation until a candidate has been qualified and has agreed to confidentiality. How far confidentiality can be maintained depends on the market and the number of people approached, so it is planned at the start.",
+          ],
+        },
+        {
+          heading: "Leadership assessment and fit",
+          paragraphs: [
+            "Senior hires fail more often on fit with the leadership team, culture and stakeholders than on technical capability. Assessment therefore tests evidence of results, leadership style, judgement and motivation, and involves the people the new leader will work with most closely. After appointment, [executive coaching and 360 feedback](/services/executive-coaching-and-360-feedback-firm-in-the-uk/) can support the transition.",
+          ],
+        },
+        {
+          heading: "Succession planning and leadership continuity",
+          paragraphs: [
+            "The best time to plan a senior appointment is before it is urgent. [Succession planning and talent mapping](/services/succession-planning-and-talent-mapping-firm-in-the-uk/) identifies critical roles and internal successors, and [strategic workforce planning](/services/strategic-workforce-planning-firm-in-the-uk/) shows which leadership capabilities the organisation will need next. External search then fills the gaps that internal development cannot.",
+          ],
+        },
+        {
+          heading: "When executive search is not the right tool",
+          paragraphs: [
+            "For mid-level and specialist roles with an active candidate market, [permanent recruitment](/services/permanent-recruitment-firm-in-the-uk/) is usually quicker and more cost-effective. If leadership is needed immediately while a search runs, an interim appointment through [contract staffing](/services/contract-staffing-firm-in-the-uk/) or a [fractional HR director](/services/fractional-hr-director-chief-people-officer-firm-in-the-uk/) for people leadership can bridge the gap. See how these fit together in our [recruitment and talent acquisition](/services/recruitment-and-talent-acquisition-firm-in-the-uk/) overview.",
+          ],
+        },
+      ],
+    },
+    relatedInsights: [
+      {
+        title: "Executive search vs recruitment agency: which is better for senior hires?",
+        path: "/executive-search-vs-recruitment-agency-which-is-better-for-senior-hires/",
+      },
+      { title: "What does an executive search consultant do?", path: "/what-does-an-executive-search-consultant-do/" },
     ],
     legalReviewRequired: false,
   },
   {
     slug: "contract-staffing-firm-in-the-uk",
     categorySlug: "recruitment-and-talent-acquisition-firm-in-the-uk",
-    metaDescription: "Apex HR is a contract staffing firm helping UK employers cover short-term, project or interim needs with flexible, well-managed contract talent.",
+    metaDescription: "Apex HR is a contract staffing firm for UK employers: interim, fixed-term and project-based talent, with contractor screening, onboarding and IR35 awareness.",
     primaryKeyword: "contract staffing",
     heroSummary: "Contract and interim staffing support to cover short-term needs, projects or absence without the overhead of a permanent hire.",
     employerChallenge:
@@ -1253,13 +1565,79 @@ export const serviceContent: ServiceContent[] = [
         answer:
           "This depends on the engagement model agreed for the specific placement, and is not assumed to be Apex HR by default. Arrangements are confirmed when setting up each engagement, with formal employment-status questions referred to a qualified adviser.",
       },
+      {
+        id: "interim-vs-temp",
+        question: "What is the difference between interim, contract, temporary and fixed-term workers?",
+        answer:
+          "The terms overlap, but broadly: interim managers are experienced professionals brought in to lead or change something for a period; contractors are usually specialists engaged for a project, often through their own company; temporary workers typically cover operational roles, often through an agency; and fixed-term employees are on your own payroll with a contract that ends on a set date or event. Each carries different employment-status, tax and rights implications.",
+      },
+      {
+        id: "how-quickly",
+        question: "How quickly can a contractor start?",
+        answer:
+          "Often faster than a permanent hire, because contractors and interim professionals tend to have short or no notice periods. The real timescale depends on how specialist the skills are, the checks the role needs and how quickly your organisation can approve the engagement. Apex HR agrees a realistic timeline when scoping the requirement.",
+      },
+      {
+        id: "contract-to-permanent",
+        question: "Can a contractor move into a permanent role?",
+        answer:
+          "Yes, if both parties want it and the contract terms allow it. Some engagement models include a transfer or introduction fee for moving a contractor or temporary worker into permanent employment, so check the terms before engagement starts. For roles you already know are permanent, a permanent search from the outset is usually more straightforward.",
+      },
+    ],
+    guide: {
+      kicker: "Contract staffing explained",
+      heading: "When and how to use contract staffing in the UK",
+      intro:
+        "Contract staffing gives organisations access to skills for a defined period without adding permanent headcount. It works best when the requirement, the engagement model and the compliance responsibilities are all clear before anyone starts.",
+      sections: [
+        {
+          heading: "When contract staffing makes sense",
+          paragraphs: [
+            "Common reasons include project delivery that needs specialist skills, cover for parental leave or long-term absence, seasonal or uncertain demand, interim leadership during a restructure or permanent search, and testing a new role before committing to it. Our article on [when to use contract staffing](/when-to-use-contract-staffing/) looks at the benefits and risks in more detail.",
+          ],
+        },
+        {
+          heading: "Contract staffing as part of workforce planning",
+          paragraphs: [
+            "A contingent workforce of contractors, interim and temporary workers lets organisations flex capacity without long-term commitments, but it works best as a planned part of the workforce mix rather than a series of urgent fixes. [Strategic workforce planning](/services/strategic-workforce-planning-firm-in-the-uk/) helps decide which capabilities should be permanent and which can be resourced flexibly. Where flexible hiring becomes continuous, [recruitment process outsourcing (RPO)](/services/recruitment-process-outsourcing-rpo-firm-in-the-uk/) can be more efficient.",
+          ],
+        },
+        {
+          heading: "Employment status and off-payroll working (IR35)",
+          paragraphs: [
+            "Where a contractor works through their own limited company, the off-payroll working rules (IR35) may apply. According to [HMRC guidance on off-payroll working](https://www.gov.uk/guidance/understanding-off-payroll-working-ir35), in most cases the client decides the worker's employment status and should give a status determination statement explaining its reasons; for small clients outside the public sector, the worker's intermediary is responsible instead. Company-size thresholds change from time to time, so check the current GOV.UK guidance. Apex HR helps structure engagements but does not make formal status determinations, which should be confirmed with a qualified adviser.",
+          ],
+        },
+        {
+          heading: "Agency workers and the 12-week qualifying period",
+          paragraphs: [
+            "Temporary workers supplied through an agency have some rights from the start of an assignment. [Acas explains](https://www.acas.org.uk/agency-workers/understanding-your-employment-rights-after-12-weeks) that after 12 weeks in the same role with the same hirer they become entitled to the same basic pay, holiday and working patterns as comparable direct employees. Planning for this at the outset avoids unexpected cost changes part-way through an assignment.",
+          ],
+        },
+        {
+          heading: "Contractor screening and onboarding",
+          paragraphs: [
+            "Contractors need the same care at the start as employees: confirming skills and references, [right to work checks](https://www.gov.uk/check-job-applicant-right-to-work) where the engagement requires them, any sector-specific checks, system access, a clear statement of deliverables and a named contact. Good onboarding is what lets a contractor be productive in days rather than weeks.",
+          ],
+        },
+        {
+          heading: "Contract staffing vs permanent staffing",
+          paragraphs: [
+            "Contract staffing trades a higher day rate for speed, flexibility and no long-term commitment; permanent hiring builds lasting capability and knowledge. Read our comparison of [contract staffing vs permanent staffing](/contract-staffing-vs-permanent-staffing/), or see [permanent recruitment](/services/permanent-recruitment-firm-in-the-uk/) and the wider [recruitment and talent acquisition](/services/recruitment-and-talent-acquisition-firm-in-the-uk/) services.",
+          ],
+        },
+      ],
+    },
+    relatedInsights: [
+      { title: "When to use contract staffing: benefits and risks", path: "/when-to-use-contract-staffing/" },
+      { title: "Contract staffing vs permanent staffing: key differences", path: "/contract-staffing-vs-permanent-staffing/" },
     ],
     legalReviewRequired: true,
   },
   {
     slug: "recruitment-process-outsourcing-rpo-firm-in-the-uk",
     categorySlug: "recruitment-and-talent-acquisition-firm-in-the-uk",
-    metaDescription: "Apex HR is a Recruitment Process Outsourcing (RPO) firm helping UK employers manage ongoing or high-volume hiring with a structured, scalable approach.",
+    metaDescription: "Apex HR is a Recruitment Process Outsourcing (RPO) firm for UK employers: end-to-end or project RPO for high-volume hiring, with ATS-led reporting.",
     primaryKeyword: "recruitment process outsourcing",
     heroSummary: "An outsourced recruitment function for employers with ongoing or high-volume hiring needs, run as an extension of your team.",
     employerChallenge:
@@ -1308,13 +1686,85 @@ export const serviceContent: ServiceContent[] = [
         answer:
           "Apex HR manages the recruitment process end-to-end, but hiring decisions, governance and final sign-off remain with your organisation, agreed as part of the engagement.",
       },
+      {
+        id: "rpo-models",
+        question: "What are the main RPO models?",
+        answer:
+          "End-to-end RPO covers the whole recruitment process for all or most roles over a longer term. Project RPO covers a defined campaign, such as a new site opening or a seasonal peak. Selective or hybrid RPO outsources particular stages (for example sourcing and screening) or particular role types, while the internal team keeps the rest. The right model depends on volume, predictability and internal capability.",
+      },
+      {
+        id: "rpo-smes",
+        question: "Is RPO suitable for SMEs?",
+        answer:
+          "It can be, particularly for growing businesses that need to hire many people in a short period but don't have an in-house recruitment team. A project-based or selective model keeps the commitment proportionate. For occasional single hires, Permanent Recruitment is usually the better fit.",
+      },
+      {
+        id: "rpo-pricing",
+        question: "How is RPO usually priced?",
+        answer:
+          "RPO is commonly priced as a management fee for the dedicated recruitment capacity, sometimes combined with a per-hire fee, rather than a percentage of each salary as with agency recruitment. The structure, volumes, service levels and any variable elements are agreed in the proposal before the engagement begins.",
+      },
+      {
+        id: "rpo-ats",
+        question: "Do we need our own applicant tracking system for RPO?",
+        answer:
+          "Not necessarily. RPO can run in your existing ATS so data stays with you, or use a system arranged for the engagement. Using your own system usually makes reporting and the eventual handover simpler; where no suitable system exists, HR software selection support can help choose one.",
+      },
+    ],
+    guide: {
+      kicker: "RPO explained",
+      heading: "How recruitment process outsourcing (RPO) works",
+      intro:
+        "In recruitment process outsourcing, an external provider runs some or all of an organisation's recruitment as an extension of its own team, using the employer's brand, process and hiring standards. It suits sustained or high-volume hiring, where a dedicated team is more efficient than placing roles one by one with agencies.",
+      sections: [
+        {
+          heading: "RPO delivery models",
+          paragraphs: [
+            "End-to-end RPO takes on the full recruitment lifecycle, from workforce and hiring plans through sourcing, assessment and offer to onboarding handover. Project RPO covers a defined hiring campaign with a start and end date. Selective or hybrid RPO outsources specific stages or role families while the internal team keeps others. Our introduction to [what recruitment process outsourcing is](/recruitment-process-outsourcing-rpo/) covers the basics.",
+          ],
+        },
+        {
+          heading: "RPO vs a traditional recruitment agency",
+          paragraphs: [
+            "An agency fills individual vacancies, usually on a contingency fee, and represents its own brand to candidates. An RPO team works under your brand, owns the process and the data, and is measured on the overall hiring programme rather than individual placements. See our comparison of [RPO vs a recruitment agency](/rpo-vs-recruitment-agency/) for scaling teams.",
+          ],
+        },
+        {
+          heading: "High-volume and scalable recruitment",
+          paragraphs: [
+            "Volume hiring for contact centres, warehousing, retail, care or seasonal peaks depends on fast, consistent screening and a good candidate experience at scale. RPO builds repeatable assessment steps, interview scheduling and candidate communication so quality holds up as volumes rise, and capacity can scale up or down with demand. Seasonal or short-term roles can be combined with [contract staffing](/services/contract-staffing-firm-in-the-uk/).",
+          ],
+        },
+        {
+          heading: "Recruitment technology and applicant tracking systems",
+          paragraphs: [
+            "An applicant tracking system is the backbone of RPO: it holds candidate data, automates communication and scheduling, and produces the reporting that governance relies on. Where the right system is not yet in place, [HR software selection](/services/hr-software-selection-firm-in-the-uk/) helps choose one that fits your process and data protection obligations.",
+          ],
+        },
+        {
+          heading: "Recruitment metrics: time to hire, cost per hire and quality of hire",
+          paragraphs: [
+            "RPO engagements are governed through agreed measures, typically time to hire, cost per hire, offer-acceptance rate, candidate experience, hiring-manager satisfaction and quality of hire. The CIPD's [Resourcing and talent planning report 2026](https://www.cipd.org/en/about/press-releases/rtp-2026/) found that 31% of organisations track time to hire and 33% collect data on candidate experience, so many organisations start from limited data. [People analytics and HR dashboards](/services/people-analytics-and-hr-dashboards-firm-in-the-uk/) can make these measures visible across the business.",
+          ],
+        },
+        {
+          heading: "When to consider RPO",
+          paragraphs: [
+            "Consider RPO when you are hiring continuously or in large numbers, agency spend is rising, candidate experience is inconsistent between teams, or growth means hiring faster than an internal team can manage. For single roles, [permanent recruitment](/services/permanent-recruitment-firm-in-the-uk/) remains simpler; for planned entry-level intakes, combine RPO with [graduate schemes and early careers design](/services/graduate-schemes-and-early-careers-design-firm-in-the-uk/). The [recruitment and talent acquisition](/services/recruitment-and-talent-acquisition-firm-in-the-uk/) overview shows how the options fit together.",
+          ],
+        },
+      ],
+    },
+    relatedInsights: [
+      { title: "What is recruitment process outsourcing (RPO)?", path: "/recruitment-process-outsourcing-rpo/" },
+      { title: "RPO vs recruitment agency: which suits a scaling team?", path: "/rpo-vs-recruitment-agency/" },
     ],
     legalReviewRequired: false,
   },
   {
     slug: "graduate-schemes-and-early-careers-design-firm-in-the-uk",
     categorySlug: "recruitment-and-talent-acquisition-firm-in-the-uk",
-    metaDescription: "Apex HR is a graduate recruitment firm helping UK employers design and deliver effective graduate schemes and early-careers hiring programmes.",
+    metaDescription: "Apex HR is a graduate recruitment firm helping UK employers design graduate schemes and early-careers programmes: attraction, assessment centres and retention.",
     primaryKeyword: "graduate scheme design",
     heroSummary: "Design and delivery support for graduate schemes and early-careers programmes that build a genuine talent pipeline.",
     employerChallenge:
@@ -1362,6 +1812,78 @@ export const serviceContent: ServiceContent[] = [
         answer:
           "Programme design is built around your organisation's needs and sourcing channels rather than a claimed set of university partnerships or guaranteed candidate volumes.",
       },
+      {
+        id: "graduate-vs-apprenticeship",
+        question: "Should we offer a graduate scheme or apprenticeships?",
+        answer:
+          "It depends on the roles and the skills pipeline you need. Graduate schemes bring in people with degree-level study for roles that need it; apprenticeships combine paid work with structured training and can open roles to a wider pool of school and college leavers and existing staff. Many employers run both, with different entry routes into the same career paths.",
+      },
+      {
+        id: "assessment-centre",
+        question: "What happens at a graduate assessment centre?",
+        answer:
+          "An assessment centre brings candidates together, in person or online, for a set of exercises designed around the role, such as a case study or work sample, group exercise, presentation and structured interview, each scored by trained assessors against the same criteria. It gives a fuller picture than an interview alone for candidates with limited work history.",
+      },
+      {
+        id: "recruitment-timeline",
+        question: "When should graduate recruitment start?",
+        answer:
+          "Many larger employers open applications in the autumn for roles starting the following summer or autumn, while smaller employers often recruit closer to the start date and throughout the year. Plan backwards from the start date, allowing time for attraction, assessment, offers and keeping in touch with candidates before they join.",
+      },
+      {
+        id: "graduate-retention",
+        question: "How do we keep graduates once they join?",
+        answer:
+          "Graduates stay where there is real work from the start, visible development such as rotations or a qualification route, regular feedback, a supportive line manager and a clear path to a role at the end of the programme. Keeping in contact between offer and start date also reduces the risk of offers being declined late.",
+      },
+    ],
+    guide: {
+      kicker: "Graduate and early careers recruitment explained",
+      heading: "How to build a graduate scheme that attracts and keeps early-career talent",
+      intro:
+        "A graduate scheme is a planned route into the organisation, not a single recruitment campaign. The [CIPD's 2026 resourcing survey](https://www.cipd.org/en/about/press-releases/rtp-2026/) found that 43% of employers offer graduate programmes and 52% offer apprenticeships. The schemes that work well design attraction, assessment, onboarding and development as one joined-up programme.",
+      sections: [
+        {
+          heading: "Start with workforce needs, not intake numbers",
+          paragraphs: [
+            "Begin with the roles and capabilities the organisation will need in three to five years, then decide how many early-career hires that implies and which entry routes fit: graduate programmes, apprenticeships, internships or school-leaver roles. Our comparison of [graduate schemes vs apprenticeships](/graduate-schemes-vs-apprenticeships/) sets out the trade-offs.",
+          ],
+        },
+        {
+          heading: "Employer branding and graduate attraction",
+          paragraphs: [
+            "Early-career candidates compare employers on development, culture, flexibility and how they are treated during the process. A credible [employer brand and employee value proposition](/services/employer-branding-and-employee-value-proposition-evp-firm-in-the-uk/), honest content from current graduates and a mix of university, social and job-board channels reach a broader pool than relying on a few campuses.",
+          ],
+        },
+        {
+          heading: "Fair, scalable assessment",
+          paragraphs: [
+            "Graduate roles attract high volumes: the [Institute of Student Employers](https://ise.org.uk/knowledge/insights/492/apprenticeships_rise_as_graduate_vacancies_drop_8) reported an average of 140 applications per graduate vacancy in each of its last two annual surveys. Screening and assessment therefore need to be efficient and fair, using criteria based on potential and skills rather than narrow proxies, situational or work-sample exercises and assessment centres scored consistently by trained assessors.",
+          ],
+        },
+        {
+          heading: "Onboarding from offer to first day",
+          paragraphs: [
+            "Months can pass between offer and start date. Regular contact, early access to the future team and practical pre-start information reduce late withdrawals. A structured induction then explains how the organisation works and what is expected in the first months.",
+          ],
+        },
+        {
+          heading: "Graduate development and retention",
+          paragraphs: [
+            "Rotations, real responsibility, mentoring and, where relevant, professional qualifications keep graduates engaged and build the capability the scheme was created for. Linking the programme to the organisation's [learning strategy and capability development](/services/learning-strategy-and-capability-development-firm-in-the-uk/) makes development consistent beyond the first year.",
+          ],
+        },
+        {
+          heading: "Building a sustainable early-careers pipeline",
+          paragraphs: [
+            "Track application quality, diversity of the intake, offer-acceptance, completion of the programme and retention at two to three years, then refine each cycle. Larger or recurring intakes can be run through [recruitment process outsourcing (RPO)](/services/recruitment-process-outsourcing-rpo-firm-in-the-uk/); individual entry-level vacancies outside a programme suit [permanent recruitment](/services/permanent-recruitment-firm-in-the-uk/). See how early careers fits into the wider [recruitment and talent acquisition](/services/recruitment-and-talent-acquisition-firm-in-the-uk/) lifecycle.",
+          ],
+        },
+      ],
+    },
+    relatedInsights: [
+      { title: "How to design a graduate scheme that attracts UK talent", path: "/design-graduate-scheme-attracts-retains-uk-talent/" },
+      { title: "Graduate schemes vs apprenticeships: which is better?", path: "/graduate-schemes-vs-apprenticeships/" },
     ],
     legalReviewRequired: false,
   },

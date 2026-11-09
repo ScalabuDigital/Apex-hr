@@ -1,4 +1,5 @@
 import type { ContentFaqItem } from "@/types/content";
+import { talentRoleEnhancements } from "@/content/talent-roles-enhancements";
 
 /**
  * Original first-draft talent-acquisition-by-role content. The 62
@@ -25,6 +26,8 @@ export interface TalentRoleContent {
   relatedSectorSlugs: string[];
   relatedServiceSlugs: string[];
   faqs: ContentFaqItem[];
+  /** Title-tag text before " | Apex HR"; falls back to "{title} Recruitment". */
+  seoTitle?: string;
 }
 
 const genericFaq = (title: string): ContentFaqItem => ({
@@ -33,7 +36,7 @@ const genericFaq = (title: string): ContentFaqItem => ({
   answer: "No specific candidate availability, timeline or salary outcome is guaranteed. Apex HR runs a structured search appropriate to the role and current market conditions.",
 });
 
-export const talentRoleContent: TalentRoleContent[] = [
+const baseTalentRoles: TalentRoleContent[] = [
   // --- Executive, senior leadership & management ---
   {
     slug: "chief-executives-senior-officials",
@@ -860,3 +863,24 @@ export const talentRoleContent: TalentRoleContent[] = [
     faqs: [genericFaq("environment professionals")],
   },
 ];
+
+/**
+ * Talent-acquisition SEO pass (docs/seo/talent-acquisition-research.md):
+ * each base record above is merged with its role-specific enhancement —
+ * a unique SEO title and meta description, a third hiring challenge, a
+ * fuller recruitment approach and two role-specific FAQs. The original
+ * availability disclaimer FAQ is kept last on every role. A role without an
+ * enhancement falls back to its base record unchanged.
+ */
+export const talentRoleContent: TalentRoleContent[] = baseTalentRoles.map((role) => {
+  const enhancement = talentRoleEnhancements[role.slug];
+  if (!enhancement) return role;
+  return {
+    ...role,
+    seoTitle: enhancement.seoTitle,
+    metaDescription: enhancement.metaDescription,
+    hiringChallenges: [...role.hiringChallenges, enhancement.extraChallenge],
+    recruitmentApproach: `${role.recruitmentApproach} ${enhancement.approachDetail}`,
+    faqs: [...enhancement.faqs, ...role.faqs],
+  };
+});

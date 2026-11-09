@@ -5,6 +5,7 @@ import { SectionKicker } from "@/components/ui/section-kicker";
 import { LinkButton } from "@/components/ui/link-button";
 import { FaqWithContactForm } from "@/components/content/faq-with-contact-form";
 import { EmptyEditorialState } from "@/components/content/empty-editorial-state";
+import { ContentGuideBand, RelatedInsightsPanel } from "@/components/content/content-guide";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { FadeUp } from "@/components/motion/fade-up";
 import { SlideInRight } from "@/components/motion/slide-in";
@@ -252,6 +253,11 @@ export function ServicePageTemplate({ title, breadcrumbTrail, service, showForEm
             </StaggerContainer>
           </section>
 
+          {/* Talent-acquisition SEO pass: optional, canonical-page-only
+              explanatory guide. Absent for every service without a `guide`
+              record, so those pages render exactly as before. */}
+          {service.guide && <ContentGuideBand guide={service.guide} id="guide" className="bg-surface-card" />}
+
           {service.engagementOptions.length > 0 && (
             <section className="bg-navy p-8 sm:p-10 lg:p-14">
               <RevealHeading>
@@ -387,7 +393,11 @@ export function ServicePageTemplate({ title, breadcrumbTrail, service, showForEm
                 <EmptyEditorialState message="A relevant Apex expert will appear here once an approved profile exists." />
               </StaggerItem>
               <StaggerItem>
-                <EmptyEditorialState message="A relevant insight article will appear here once published." />
+                {service.relatedInsights && service.relatedInsights.length > 0 ? (
+                  <RelatedInsightsPanel insights={service.relatedInsights} />
+                ) : (
+                  <EmptyEditorialState message="A relevant insight article will appear here once published." />
+                )}
               </StaggerItem>
             </StaggerContainer>
           </section>

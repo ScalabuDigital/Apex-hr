@@ -81,3 +81,33 @@ export interface RelatedLink {
   label: string;
   href: string;
 }
+
+/**
+ * Talent-acquisition SEO pass (docs/seo/talent-acquisition-research.md):
+ * an explanatory, canonical-page-only guide block. Paragraph strings may
+ * contain inline links written as `[anchor text](/internal/path/)` or
+ * `[anchor text](https://official.source/)` — rendered by
+ * `InlineLinkText`. Every href is validated by
+ * tests/unit/talent-acquisition-seo.test.tsx.
+ */
+export interface ContentGuideSection {
+  heading: string;
+  paragraphs: string[];
+}
+
+export interface ContentGuide {
+  /** Small kicker label above the H2. */
+  kicker: string;
+  /** The guide's H2 — each page's is unique and intent-specific. */
+  heading: string;
+  intro?: string;
+  /** Rendered as H3 subsections under the guide's H2. */
+  sections: ContentGuideSection[];
+}
+
+/** A link to an existing, verified Apex HR insight article. */
+export interface RelatedInsightLink {
+  title: string;
+  /** Root-level article path, e.g. `/rpo-vs-recruitment-agency/`. */
+  path: string;
+}
