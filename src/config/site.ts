@@ -35,8 +35,20 @@ export const siteConfig = {
   contactPhoneDisplay: "+44 7762 272692",
   whatsappNumber,
   whatsappUrl: `https://wa.me/${whatsappNumber}`,
-  /** Public contact email used by contact surfaces, form fallback and structured data. */
-  contactEmail: "hello@apexhrllc.co.uk",
+  /**
+   * General business contact email used by contact surfaces, the general
+   * enquiry form, privacy policy and structured data. This is an email
+   * address only — the website domain remains www.apexhrllc.co.uk.
+   */
+  contactEmail: "hello@apexhrllc.com",
+  /**
+   * Job board contact email shown on job board surfaces (vacancy archive
+   * fallback, application-form error message). Deliberately kept separate
+   * from `contactEmail` so general-contact changes never alter the job board.
+   * Job application notifications are sent by the WordPress plugin
+   * (wordpress/apex-hr-vacancies), not by this value.
+   */
+  jobBoardContactEmail: "hello@apexhrllc.co.uk",
 };
 
 export function absoluteUrl(path: string): string {

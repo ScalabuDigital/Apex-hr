@@ -64,15 +64,17 @@ describe("6. Production domain is .co.uk", () => {
 });
 
 describe("7. the public business email uses the Apex HR contact address", () => {
-  it("siteConfig.contactEmail is hello@apexhrllc.co.uk", () => {
-    expect(siteConfig.contactEmail).toBe("hello@apexhrllc.co.uk");
+  it("siteConfig.contactEmail is hello@apexhrllc.com (general contact)", () => {
+    expect(siteConfig.contactEmail).toBe("hello@apexhrllc.com");
   });
 
   it("the rendered page uses the configured address as a real mailto link", () => {
     const html = renderToString(<PrivacyPolicyPage />);
     expect(html).toContain(`href="mailto:${siteConfig.contactEmail}"`);
     expect(html).toContain(siteConfig.contactEmail);
-    expect(html).not.toContain(".com");
+    // The general contact email is on apexhrllc.com; the retired .com
+    // *website* domain must still never appear anywhere else on the page.
+    expect(html.split(siteConfig.contactEmail).join("")).not.toContain(".com");
   });
 });
 

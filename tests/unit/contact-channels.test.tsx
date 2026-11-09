@@ -8,16 +8,21 @@ import { getOrganizationJsonLd } from "@/lib/seo/structured-data";
 
 describe("public contact channels", () => {
   it("centralizes the approved email and WhatsApp contact values", () => {
-    expect(siteConfig.contactEmail).toBe("hello@apexhrllc.co.uk");
+    expect(siteConfig.contactEmail).toBe("hello@apexhrllc.com");
     expect(siteConfig.contactPhoneDisplay).toBe("+44 7762 272692");
     expect(siteConfig.whatsappNumber).toBe("447762272692");
     expect(siteConfig.whatsappUrl).toBe("https://wa.me/447762272692");
   });
 
+  it("keeps the job board email separate from, and unchanged by, the general contact email", () => {
+    expect(siteConfig.jobBoardContactEmail).toBe("hello@apexhrllc.co.uk");
+    expect(siteConfig.jobBoardContactEmail).not.toBe(siteConfig.contactEmail);
+  });
+
   it("renders the contact page with the approved email and WhatsApp-only contact options", () => {
     const html = renderToString(<ContactPage />);
-    expect(html).toContain("hello@apexhrllc.co.uk");
-    expect(html).toContain('href="mailto:hello@apexhrllc.co.uk"');
+    expect(html).toContain("hello@apexhrllc.com");
+    expect(html).toContain('href="mailto:hello@apexhrllc.com"');
     expect(html).toContain("Reach us on WhatsApp:");
     expect(html).toContain("+44 7762 272692");
     expect(html).toContain("Message us on WhatsApp");
@@ -46,7 +51,7 @@ describe("public contact channels", () => {
     const organization = getOrganizationJsonLd();
     const contactPoint = organization.contactPoint;
 
-    expect(contactPoint.email).toBe("hello@apexhrllc.co.uk");
+    expect(contactPoint.email).toBe("hello@apexhrllc.com");
     expect(contactPoint).not.toHaveProperty("telephone");
     expect(JSON.stringify(organization)).not.toContain("+44 7762 272692");
   });
