@@ -232,3 +232,22 @@ No testimonials exist anywhere in the codebase. None are referenced by any templ
 - No approved logo asset exists (unchanged from Phase 1) — `Logo` (`src/components/ui/logo.tsx`) remains a temporary text mark.
 - No approved photography exists for the homepage hero, service pages, sector pages, location pages or expert profiles. All visual treatment remains CSS-based/abstract (no `next/image` usage yet, since there is no real image to optimise).
 - No Open Graph / social-sharing image exists; `buildMetadata()`'s `ogImagePath` parameter is unused by any page this phase.
+
+---
+
+## Case studies — illustrative scenarios (D-020)
+
+Recorded 9 November 2026. Eleven AI-drafted case studies in `src/content/case-studies-data.ts` are published as **clearly labelled illustrative scenarios**, per explicit user instruction (see `docs/URL-DECISION-REGISTER.md` D-020 and `docs/CASE-STUDY-AUDIT.md`). They name no clients, claim no results and quote no testimonials. Individual pages are noindex while the route is Provisional.
+
+**Stakeholder review:** every record needs Apex HR sign-off that the described approach reflects how Apex HR actually works.
+
+**Qualified review before treating as final:**
+
+- `healthcare-care-staffing`: immigration/sponsorship statements (care-worker route changes since July 2025) need checking by a regulated immigration adviser, plus employment-law review.
+- `manufacturing-restructure`: collective consultation thresholds, HR1 and TUPE statements need employment-law review, especially as Employment Rights Act 2025 measures take effect.
+- `employee-relations-investigation`: investigation, mediation and tribunal-support statements need employment-law review.
+- `post-merger-people-integration`: TUPE/harmonisation statements need employment-law review; due-diligence scope boundaries also need transaction-adviser review (same concern as the M&A service page above).
+- `pay-framework-and-reward`: gender pay gap and equal pay statements need employment-law and reward-professional review.
+- `outsourced-hr-growing-practice`: written statement, TUPE and disciplinary procedure statements need employment-law review.
+
+**Replacing with real evidence:** when a verified, anonymised engagement is approved, switch the record to `evidenceBasis: "verified"` and record proof approval before stating any outcome.

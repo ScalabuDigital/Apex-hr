@@ -28,6 +28,7 @@
 | D-018 | Partnership and pricing page | Add the explicitly approved employer partnership route `/partnership/` as Confirmed and indexable; preserve supplied prices and allocations | Add the route to `src/config/routes.ts`, employer navigation and page sitemap; use the existing Contact enquiry flow |
 | D-019 | WordPress-powered Job Board | Confirm `/jobs/` as the public Job Board and WordPress as its vacancy source of truth until an ATS is approved. Individual vacancies use `/jobs/{slug}/`; only published, open, non-expired vacancies are indexable. The WordPress origin must not expose vacancy pages or sitemap entries | Install the `apex-hr-vacancies` plugin on the WordPress CMS, consume its REST API through `src/lib/wordpress/`, and publish active roles through the Next.js vacancy sitemap |
 | D-018 | Partnership and pricing page | Add the explicitly approved employer partnership page at `/partnership/`; do not introduce additional commercial terms beyond the supplied tiers and shared commitments | Add the route to `src/config/routes.ts`, employer navigation and manifest-driven page sitemap; use the existing Contact enquiry flow |
+| D-020 | Illustrative case studies | Stakeholder-approved (9 November 2026): case studies may be published as clearly labelled illustrative scenarios until verified engagements are supplied. Individual `/case-study/[slug]/` routes stay Provisional (noindex, excluded from the sitemap); `/case-study/` stays `readyToIndex: false` | Records in `src/content/case-studies-data.ts`; template `src/components/templates/case-study-template.tsx`; visible illustrative label on every card, hero and meta description; service pages show the closest case study — see the full entry below |
 
 ## D-001 — Sector is canonical
 
@@ -289,6 +290,26 @@ Individual location pages' breadcrumbs now run Home → Locations → [location]
 
 **Implementation:** Install the `wordpress/apex-hr-vacancies/` plugin on the WordPress CMS, configure the Next.js WordPress API origin, and use the shared vacancy adapter in `src/lib/wordpress/`. The WordPress front end and WordPress sitemaps must not expose vacancy pages; Next.js owns canonical vacancy URLs and the `vacancy-sitemap.xml` endpoint. Applications and private CVs are persisted through the server-side Supabase integration, not WordPress.
 
+
+## D-020 — Illustrative case studies
+
+**Decision (user instruction, 9 November 2026):** No verified client engagements are available. The user approved publishing case studies as **clearly labelled illustrative scenarios** rather than leaving every case-study slot empty. This narrows, but does not lift, CLAUDE.md section 31: no client names, figures, testimonials or claimed outcomes may be invented. An illustrative record describes how Apex HR *would* approach a situation and how success *would* be measured.
+
+**Controls:**
+
+- Every illustrative record has `evidenceBasis: "illustrative"`, `contentStatus: "ai-draft"` and `reviewStatus: "stakeholder-review-required"`.
+- The label "Scenario" is visible on every case-study card and in each page hero, and each meta description starts "Scenario:". Per later user instruction (9 November 2026), the separate "not a specific client" disclosure note and "Is this a real client project?" FAQ were removed; the label, the conditional "how Apex HR would…" framing and the "no results are claimed" results intro remain. Per later user instruction (9 November 2026), public copy never uses the word "illustrative"; internal identifiers (`evidenceBasis: "illustrative"`) keep it.
+- Results sections are framed as "how success would be measured", never as achieved outcomes.
+- Third-party statistics are attributed inline and listed under "Sources and further reading", with a note that they describe the UK market, not Apex HR results.
+- No `Review`, `AggregateRating` or testimonial markup. Pages emit `Article` + `BreadcrumbList` only, plus `FAQPage` once indexable.
+- The homepage "Results for the employers we work with" section stays empty: illustrative scenarios are not results.
+
+**Route status (unchanged):** `/case-study/[slug]/` remains **Provisional**. Pages render with `noindex, follow` and are excluded from the XML sitemap (`CASE_STUDY_ROUTE_STATUS` in `src/content/case-studies-data.ts`). `/case-study/` remains Confirmed but `readyToIndex: false`. Making either indexable needs a separate, explicit route decision recorded here, then a one-line change to `CASE_STUDY_ROUTE_STATUS` / `routes.caseStudies.readyToIndex`.
+
+**Records:** eleven illustrative case studies covering all 48 services and 17 sectors (see `docs/CASE-STUDY-AUDIT.md`).
+
+**Replacing illustrative records:** when a real, anonymised engagement is approved, set `evidenceBasis: "verified"` and record `proofApproval` evidence before publishing any outcome.
+
 ## Redirect implementation checklist
 
 - Implement all entries in the workbook's `Redirects` sheet.
@@ -312,7 +333,7 @@ The structural conflicts requested for this round are resolved. The following ro
 - Find Talent fallback page and CRM destination.
 - Experts and profile routes.
 - Reports, events and webinars.
-- Individual insight and case-study routes.
+- Individual insight routes; individual case-study routes (illustrative records exist but stay noindex — D-020).
 - All service-location combinations.
 - Additional service candidates listed above.
 

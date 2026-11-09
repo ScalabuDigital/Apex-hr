@@ -5,6 +5,8 @@ import { SectionKicker } from "@/components/ui/section-kicker";
 import { LinkButton } from "@/components/ui/link-button";
 import { FaqWithContactForm } from "@/components/content/faq-with-contact-form";
 import { EmptyEditorialState } from "@/components/content/empty-editorial-state";
+import { CaseStudyCard } from "@/components/content/case-study-card";
+import { getCaseStudiesForService, toCaseStudyPreview } from "@/content/case-studies-data";
 import { ContentGuideBand, RelatedInsightsPanel } from "@/components/content/content-guide";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { FadeUp } from "@/components/motion/fade-up";
@@ -89,6 +91,9 @@ export function ServicePageTemplate({ title, breadcrumbTrail, service, showForEm
   // on ServiceContent.additionalFaqs. Combined only here, for the
   // canonical page's own visible FAQ section and schema.
   const allFaqs = [...service.faqs, ...(service.additionalFaqs ?? [])];
+  // Closest case study (CLAUDE.md section 12 item 11), driven by the case
+  // study's own serviceSlugs relationship — never pasted per page.
+  const closestCaseStudy = getCaseStudiesForService(service.slug)[0];
 
   return (
     <div className="bg-surface-page">
@@ -387,7 +392,11 @@ export function ServicePageTemplate({ title, breadcrumbTrail, service, showForEm
             </RevealHeading>
             <StaggerContainer className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
               <StaggerItem>
-                <EmptyEditorialState message="A relevant case study will appear here once verified evidence is approved." />
+                {closestCaseStudy ? (
+                  <CaseStudyCard caseStudy={toCaseStudyPreview(closestCaseStudy)} />
+                ) : (
+                  <EmptyEditorialState message="A relevant case study will appear here once verified evidence is approved." />
+                )}
               </StaggerItem>
               <StaggerItem>
                 <EmptyEditorialState message="A relevant Apex expert will appear here once an approved profile exists." />

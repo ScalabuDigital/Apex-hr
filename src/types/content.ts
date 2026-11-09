@@ -29,6 +29,7 @@ export type PageType =
   | "insightCategory"
   | "resourcesHub"
   | "caseStudiesHub"
+  | "caseStudy"
   | "expertsHub"
   | "generalInformation"
   | "conversionLanding";

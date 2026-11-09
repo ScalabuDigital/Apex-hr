@@ -504,6 +504,10 @@ export interface CaseStudyPreview {
   title: string;
   summary: string;
   href: string;
+  /** Visible evidence label, e.g. "Scenario" — required for non-verified records. */
+  label?: string;
+  /** Optional sector/service categorisation line. */
+  meta?: string;
 }
 
 // No verified case studies are approved yet — kept empty rather than
