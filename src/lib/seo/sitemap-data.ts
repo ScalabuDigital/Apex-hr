@@ -79,6 +79,7 @@ function classifyPageType(pageType: PageType): LocalGroupKey | "insight" {
     case "generalInformation":
     case "resourcesHub":
     case "caseStudiesHub":
+    case "caseStudy":
     case "expertsHub":
     case "conversionLanding":
       return "page";

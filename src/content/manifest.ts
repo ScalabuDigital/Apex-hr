@@ -19,6 +19,12 @@ import {
   talentPoolPageContent,
 } from "@/content/supporting-pages-data";
 import { privacyPolicyLead } from "@/content/privacy-policy-data";
+import {
+  CASE_STUDY_ROUTE_STATUS,
+  caseStudyContent,
+  caseStudyPath,
+  isCaseStudyIndexable,
+} from "@/content/case-studies-data";
 
 /**
  * Machine-readable content manifest for the whole site, per this phase's
@@ -569,13 +575,44 @@ function buildManifest(): ContentManifestEntry[] {
     contentStatus: "ai-draft",
     reviewStatus: "stakeholder-review-required",
     primaryAudience: "employer",
-    primaryIntent: "Present verified proof of Apex HR's work",
+    primaryIntent: "Show how Apex HR approaches employer challenges (illustrative scenarios until verified engagements are approved — D-020)",
     primaryKeyword: "HR case studies",
     metaTitle: "Case Studies | Apex HR",
-    metaDescription: "Verified results and case studies from Apex HR's work with employers.",
-    h1: "Results for the employers we work with",
+    metaDescription:
+      "Illustrative HR and recruitment scenarios showing how Apex HR approaches common employer challenges, from scale-up hiring to outsourced HR.",
+    h1: "How Apex HR approaches employer challenges",
     legalReviewRequired: false,
   });
+
+  // Individual case studies (docs/URL-DECISION-REGISTER.md D-020). The
+  // route family is Provisional, so every entry is non-indexable and
+  // excluded from the XML sitemap until that decision changes.
+  for (const caseStudy of caseStudyContent) {
+    entries.push({
+      pageType: "caseStudy",
+      title: caseStudy.shortTitle,
+      slug: caseStudy.slug,
+      canonicalPath: caseStudyPath(caseStudy.slug),
+      routeStatus: CASE_STUDY_ROUTE_STATUS,
+      indexable: isCaseStudyIndexable(caseStudy),
+      contentStatus: caseStudy.contentStatus,
+      reviewStatus: caseStudy.reviewStatus,
+      primaryAudience: "employer",
+      primaryIntent: caseStudy.summary,
+      primaryKeyword: caseStudy.primaryKeyword,
+      secondaryKeywords: caseStudy.secondaryKeywords,
+      metaTitle: `${caseStudy.seoTitle} | Apex HR`,
+      metaDescription: caseStudy.metaDescription,
+      h1: caseStudy.title,
+      parent: routes.caseStudies.path,
+      relatedPages: [
+        ...caseStudy.serviceSlugs.map((slug) => `/services/${slug}/`),
+        ...caseStudy.sectorSlugs.map((slug) => `/sector/${slug}/`),
+      ],
+      sourceReferences: caseStudy.sources.map((source) => source.href),
+      legalReviewRequired: caseStudy.legalReviewRequired,
+    });
+  }
 
   entries.push({
     pageType: "expertsHub",

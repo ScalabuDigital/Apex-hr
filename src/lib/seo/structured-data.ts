@@ -169,6 +169,46 @@ export function getBlogPostingJsonLd({
   };
 }
 
+interface CaseStudyArticleJsonLdInput {
+  path: string;
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified: string;
+  /** Visible topic labels (services/sectors) for `about`. */
+  about: string[];
+}
+
+/**
+ * `Article` JSON-LD for a case-study page (CLAUDE.md section 16:
+ * "Insight/article -> Article"). Publisher is the organisation entity; no
+ * author Person is invented, and no Review/rating markup is ever added —
+ * illustrative scenarios are not client reviews or verified results.
+ */
+export function getCaseStudyArticleJsonLd({
+  path,
+  headline,
+  description,
+  datePublished,
+  dateModified,
+  about,
+}: CaseStudyArticleJsonLdInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": `${absoluteUrl(path)}#article`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(path) },
+    url: absoluteUrl(path),
+    headline,
+    description,
+    datePublished,
+    dateModified,
+    about: about.map((name) => ({ "@type": "Thing", name })),
+    publisher: { "@id": `${siteConfig.productionUrl}/#organization` },
+    isPartOf: { "@id": `${siteConfig.productionUrl}/#website` },
+  };
+}
+
 const schemaEmploymentType: Record<string, string> = {
   Permanent: "FULL_TIME",
   Temporary: "TEMPORARY",

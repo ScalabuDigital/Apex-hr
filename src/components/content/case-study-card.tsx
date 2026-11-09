@@ -8,12 +8,19 @@ interface CaseStudyCardProps {
 
 /**
  * Case study preview card, per DESIGN.md section 16 "Case-study cards".
- * Only render this with verified, approved evidence — see
- * EmptyEditorialState for the fallback used while none exists.
+ * Only render this with approved content. An illustrative or anonymised
+ * record must pass `label` so the card identifies it clearly (DESIGN.md:
+ * "Clearly identify anonymised case studies"). See EmptyEditorialState
+ * for the fallback used while none exists.
  */
 export function CaseStudyCard({ caseStudy }: CaseStudyCardProps) {
   return (
-    <Card className="p-6 hover:border-navy">
+    <Card className="h-full p-6 hover:border-navy">
+      {(caseStudy.label || caseStudy.meta) && (
+        <p className="mb-3 text-caption font-bold uppercase tracking-widest text-text-secondary">
+          {[caseStudy.label, caseStudy.meta].filter(Boolean).join(" · ")}
+        </p>
+      )}
       <h3 className="font-display text-h4 font-bold text-navy">
         <Link href={caseStudy.href} className="hover:underline">
           {caseStudy.title}

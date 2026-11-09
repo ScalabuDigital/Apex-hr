@@ -70,7 +70,7 @@ The counts above include canonical pages, dynamic route patterns, explicit redir
 | For Employers | `/for-employers/` | Provisional | P1 |
 | Find Talent | `/find-talent/` | Provisional | P1 |
 | Case Studies | `/case-study/` | Confirmed | P1 |
-| Individual case study | `/case-study/[case-study-slug]/` | Provisional | P1 |
+| Individual case study | `/case-study/[case-study-slug]/` | Provisional (illustrative records live, noindex — D-020) | P1 |
 | Experts | `/experts/` | Provisional | P1 |
 | Expert profile | `/experts/[expert-slug]/` | Provisional | P1 |
 | For Candidates | `/for-candidates/` | Provisional | P2 |
