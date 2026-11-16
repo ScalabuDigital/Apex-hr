@@ -427,13 +427,16 @@ function apex_hr_applications_validate_cv_upload( $file ) {
 	if ( false === $bytes ) {
 		return new WP_Error( 'apex_hr_invalid_cv', __( 'The uploaded CV file could not be read.', 'apex-hr-vacancies' ) );
 	}
-	if ( 0 === strpos( $bytes, 'MZ' ) || 0 === strpos( $bytes, "\x7FELF" ) || 0 === strpos( $bytes, '#!' ) || false !== stripos( $bytes, '<?php' ) || false !== stripos( $bytes, '<?=') ) {
+	// A short marker such as "<?=" occurs by chance in compressed document data, so only the
+	// unambiguous "<?php" opener is scanned for. Files are stored privately under a random
+	// non-executable name, so this is defence in depth rather than the primary control.
+	if ( 0 === strpos( $bytes, 'MZ' ) || 0 === strpos( $bytes, "\x7FELF" ) || 0 === strpos( $bytes, '#!' ) || false !== stripos( $bytes, '<?php' ) ) {
 		return new WP_Error( 'apex_hr_invalid_cv', __( 'The uploaded CV file is not an accepted document.', 'apex-hr-vacancies' ) );
 	}
 
 	$valid = false;
 	if ( 'pdf' === $extension ) {
-		$valid = 'application/pdf' === $mime && 0 === strpos( $bytes, '%PDF-' ) && ! preg_match( '/\/(?:JavaScript|JS|EmbeddedFile|Launch|OpenAction)\b/i', $bytes );
+		$valid = 'application/pdf' === $mime && 0 === strpos( $bytes, '%PDF-' ) && ! preg_match( '/\/(?:JavaScript|JS|EmbeddedFile|Launch)\b/i', $bytes );
 	} elseif ( 'doc' === $extension ) {
 		$valid = in_array( $mime, array( 'application/msword', 'application/x-ole-storage', 'application/vnd.ms-office', 'application/cdfv2' ), true ) && 8 <= strlen( $bytes ) && "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" === substr( $bytes, 0, 8 ) && false === stripos( $bytes, '_VBA_PROJECT' );
 	} elseif ( 'docx' === $extension && in_array( $mime, array( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip' ), true ) && class_exists( 'ZipArchive' ) ) {
@@ -450,7 +453,8 @@ function apex_hr_applications_validate_cv_upload( $file ) {
 				}
 				$has_document = $has_document || 'word/document.xml' === $entry;
 				$has_types    = $has_types || '[Content_Types].xml' === $entry;
-				if ( preg_match( '/\.(?:php\d*|phtml|phar|exe|com|bat|cmd|sh|js|html?|svg|pl|py|rb|jar|scr|msi|dll|bin)$/i', $entry ) || preg_match( '~(?:^|/)word/embeddings(?:/|$)|vbaProject~i', $entry ) ) {
+				$is_printer_settings = (bool) preg_match( '~^word/printerSettings/printerSettings\d*\.bin$~i', $entry );
+				if ( ( ! $is_printer_settings && preg_match( '/\.(?:php\d*|phtml|phar|exe|com|bat|cmd|sh|js|html?|svg|pl|py|rb|jar|scr|msi|dll|bin)$/i', $entry ) ) || preg_match( '~(?:^|/)word/embeddings(?:/|$)|vbaProject~i', $entry ) ) {
 					$unsafe_entry = true;
 					break;
 				}

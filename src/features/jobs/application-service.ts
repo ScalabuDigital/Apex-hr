@@ -214,6 +214,23 @@ function getWordPressEndpoint(): { url: URL; username: string; password: string 
   return { url, username, password: password.replace(/\s/g, "") };
 }
 
+const KNOWN_WORDPRESS_ERROR_CODES = [
+  "apex_hr_invalid_cv",
+  "apex_hr_cv_required",
+  "apex_hr_invalid_application",
+  "apex_hr_invalid_idempotency_key",
+  "apex_hr_invalid_content_type",
+] as const;
+
+async function readWordPressErrorCode(response: Response): Promise<(typeof KNOWN_WORDPRESS_ERROR_CODES)[number] | null> {
+  const result: unknown = await response.json().catch(() => null);
+  if (typeof result !== "object" || result === null || !("code" in result) || typeof result.code !== "string") {
+    return null;
+  }
+  const code = result.code;
+  return KNOWN_WORDPRESS_ERROR_CODES.find((known) => known === code) ?? null;
+}
+
 async function forwardApplication(submission: ApplicationSubmission): Promise<WordPressApplicationResponse> {
   const { url, username, password } = getWordPressEndpoint();
   const body = new FormData();
@@ -262,6 +279,19 @@ async function forwardApplication(submission: ApplicationSubmission): Promise<Wo
       throw new ApplicationServiceError("vacancy-closed", 409, "This vacancy is no longer accepting applications.");
     }
     if (response.status === 400 || response.status === 415 || response.status === 422) {
+      const wordpressCode = await readWordPressErrorCode(response);
+      // Log only the allow-listed machine code: never the WordPress message or any applicant data.
+      console.error(`[job-applications] WordPress rejected submission (${response.status}, ${wordpressCode ?? "unknown"})`);
+      if (wordpressCode === "apex_hr_invalid_cv" || wordpressCode === "apex_hr_cv_required") {
+        throw new ApplicationServiceError(
+          "cv-rejected",
+          400,
+          "We could not accept this CV file. Upload a PDF, DOC or DOCX file up to 5 MB, or re-save your CV as a new PDF and try again.",
+        );
+      }
+      if (wordpressCode === "apex_hr_invalid_idempotency_key") {
+        throw new ApplicationServiceError("invalid-form", 400, "Refresh the page and try submitting your application again.");
+      }
       throw new ApplicationServiceError("invalid-form", 400, "Check the application fields and try again.");
     }
     console.error(`[job-applications] WordPress submission failed (${response.status})`);

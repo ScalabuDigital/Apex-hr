@@ -330,6 +330,19 @@ describe("WordPress application submission", () => {
       message: "Check the application fields and try again.",
     });
     expect(errorLog.mock.calls.flat().join(" ")).not.toContain("private validation details");
+
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      if (String(input).includes("challenges.cloudflare.com")) {
+        return jsonResponse({ success: true, hostname: "www.apexhrllc.co.uk" });
+      }
+      return jsonResponse({ code: "apex_hr_invalid_cv", message: "private cv details" }, 400);
+    });
+    await expect(submitJobApplication(buildForm(), "")).rejects.toMatchObject({
+      code: "cv-rejected",
+      status: 400,
+    });
+    expect(errorLog.mock.calls.flat().join(" ")).toContain("apex_hr_invalid_cv");
+    expect(errorLog.mock.calls.flat().join(" ")).not.toContain("private cv details");
     errorLog.mockRestore();
   });
 
