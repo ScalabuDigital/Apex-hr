@@ -394,6 +394,62 @@ function apex_hr_applications_resolve_cv_file( $filename ) {
 }
 
 /**
+ * List the entry names of a ZIP archive.
+ *
+ * Uses ZipArchive when the PHP zip extension is available, otherwise reads the
+ * archive's central directory directly so DOCX validation does not depend on it.
+ *
+ * @param string $path  Archive path.
+ * @param string $bytes Archive contents.
+ * @return array<int, string>|null Entry names, or null when the archive cannot be read.
+ */
+function apex_hr_applications_zip_entry_names( $path, $bytes ) {
+	if ( class_exists( 'ZipArchive' ) ) {
+		$archive = new ZipArchive();
+		if ( true !== $archive->open( $path ) ) {
+			return null;
+		}
+		$names = array();
+		for ( $index = 0; $index < $archive->numFiles; $index++ ) {
+			$name = $archive->getNameIndex( $index );
+			if ( false === $name ) {
+				$archive->close();
+				return null;
+			}
+			$names[] = $name;
+		}
+		$archive->close();
+		return $names;
+	}
+
+	$length = strlen( $bytes );
+	$end    = strrpos( $bytes, "PK\x05\x06" );
+	if ( false === $end || $length < $end + 22 ) {
+		return null;
+	}
+	$directory = unpack( 'vtotal/Vsize/Voffset', substr( $bytes, $end + 10, 10 ) );
+	if ( ! is_array( $directory ) || $directory['total'] > 5000 ) {
+		return null;
+	}
+
+	$names  = array();
+	$offset = (int) $directory['offset'];
+	for ( $index = 0; $index < $directory['total']; $index++ ) {
+		if ( $length < $offset + 46 || "PK\x01\x02" !== substr( $bytes, $offset, 4 ) ) {
+			return null;
+		}
+		$header = unpack( 'vname/vextra/vcomment', substr( $bytes, $offset + 28, 6 ) );
+		if ( ! is_array( $header ) || $length < $offset + 46 + $header['name'] ) {
+			return null;
+		}
+		$names[] = substr( $bytes, $offset + 46, $header['name'] );
+		$offset += 46 + $header['name'] + $header['extra'] + $header['comment'];
+	}
+
+	return $names;
+}
+
+/**
  * Validate an uploaded CV using its extension, detected MIME type and content.
  *
  * @param array<string, mixed> $file PHP uploaded-file data.
@@ -439,15 +495,17 @@ function apex_hr_applications_validate_cv_upload( $file ) {
 		$valid = 'application/pdf' === $mime && 0 === strpos( $bytes, '%PDF-' ) && ! preg_match( '/\/(?:JavaScript|JS|EmbeddedFile|Launch)\b/i', $bytes );
 	} elseif ( 'doc' === $extension ) {
 		$valid = in_array( $mime, array( 'application/msword', 'application/x-ole-storage', 'application/vnd.ms-office', 'application/cdfv2' ), true ) && 8 <= strlen( $bytes ) && "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" === substr( $bytes, 0, 8 ) && false === stripos( $bytes, '_VBA_PROJECT' );
-	} elseif ( 'docx' === $extension && in_array( $mime, array( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip' ), true ) && class_exists( 'ZipArchive' ) ) {
-		$archive = new ZipArchive();
-		if ( true === $archive->open( $temporary ) ) {
+	} elseif ( 'docx' === $extension && in_array( $mime, array( 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/octet-stream' ), true ) && 0 === strpos( $bytes, "PK\x03\x04" ) ) {
+		// Older libmagic builds bundled with PHP report DOCX files whose word/ part is not among
+		// the first archive entries (common outside Microsoft Word) as application/octet-stream.
+		// The archive structure below is the authoritative check.
+		$entries = apex_hr_applications_zip_entry_names( $temporary, $bytes );
+		if ( is_array( $entries ) ) {
 			$has_document = false;
 			$has_types    = false;
 			$unsafe_entry = false;
-			for ( $index = 0; $index < $archive->numFiles; $index++ ) {
-				$entry = $archive->getNameIndex( $index );
-				if ( false === $entry || 0 === strpos( $entry, '/' ) || false !== strpos( $entry, '..' ) ) {
+			foreach ( $entries as $entry ) {
+				if ( ! is_string( $entry ) || '' === $entry || 0 === strpos( $entry, '/' ) || false !== strpos( $entry, '..' ) ) {
 					$unsafe_entry = true;
 					break;
 				}
@@ -460,7 +518,6 @@ function apex_hr_applications_validate_cv_upload( $file ) {
 				}
 			}
 			$valid = ! $unsafe_entry && $has_document && $has_types;
-			$archive->close();
 		}
 	}
 
