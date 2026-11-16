@@ -1,6 +1,6 @@
 # Apex HR Vacancies
 
-A small, self-contained WordPress plugin for managing Apex HR vacancies and private job applications. Version 1.2.1 registers the `vacancy` post type, provides a details metabox, registers vacancy metadata with the REST API, limits anonymous REST vacancy responses to published posts, and accepts authenticated Next.js application submissions.
+A small, self-contained WordPress plugin for managing Apex HR vacancies and private job applications. Version 1.2.2 registers the `vacancy` post type, provides a details metabox, registers vacancy metadata with the REST API, limits anonymous REST vacancy responses to published posts, and accepts authenticated Next.js application submissions.
 
 ## Requirements
 
