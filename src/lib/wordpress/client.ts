@@ -34,6 +34,15 @@ import type {
 /** ~5-minute revalidation window, per this integration's data-freshness requirement. */
 const REVALIDATE_SECONDS = 300;
 
+/** Fail fast so a stalled CMS connection renders the honest empty state instead of hanging the page. */
+const REQUEST_TIMEOUT_MS = 30_000;
+
+/**
+ * Only the vacancy fields `normalizeVacancy` reads. Skipping Yoast head
+ * markup, `_links` and embeds cuts each response by roughly 40%.
+ */
+const VACANCY_FIELDS = "id,date,date_gmt,modified,modified_gmt,slug,status,link,title,content,excerpt,featured_media,meta";
+
 /**
  * Low-level fetch wrapper for the WordPress REST API. Never throws to the
  * caller and never leaks a raw upstream error message to a visitor — every
@@ -49,6 +58,7 @@ async function wpFetch<T>(path: string): Promise<{ data: T; headers: Headers } |
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
       next: { revalidate: REVALIDATE_SECONDS },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -59,7 +69,7 @@ async function wpFetch<T>(path: string): Promise<{ data: T; headers: Headers } |
     const data = (await response.json()) as T;
     return { data, headers: response.headers };
   } catch (error) {
-    console.error("[wordpress] request failed", error);
+    console.error(`[wordpress] request failed fetching ${path.split("?")[0]}`, error);
     return null;
   }
 }
@@ -365,7 +375,7 @@ async function fetchPublishedVacancies(params: Record<string, string | number | 
   for (let page = 1; page <= maxPages; page += 1) {
     const query = buildQuery({
       status: "publish",
-      _embed: 1,
+      _fields: VACANCY_FIELDS,
       orderby: "date",
       order: "desc",
       per_page: perPage,
@@ -404,7 +414,7 @@ export async function getFeaturedVacancies(limit = 3): Promise<Vacancy[]> {
 
 /** Looks up a published vacancy by exact slug; closed vacancies remain available for a clear status page. */
 export async function getVacancyBySlug(slug: string): Promise<Vacancy | null> {
-  const query = buildQuery({ slug: encodeURIComponent(slug), status: "publish", _embed: 1 });
+  const query = buildQuery({ slug: encodeURIComponent(slug), status: "publish", _fields: VACANCY_FIELDS });
   const result = await wpFetch<WpRestVacancy[]>(`/vacancies?${query}`);
   if (!result || !Array.isArray(result.data)) return null;
   const raw = result.data.find((item) => item.status === "publish" && item.slug === slug);

@@ -221,10 +221,17 @@ export function VacancyArchive({ allVacancies, vacancies, filters, page, unavail
                         )}
                         {closingDate && <p className="mt-1 text-small text-white/55">Closes {closingDate}</p>}
                       </div>
-                      <p className="text-body text-white/85">
-                        <span className="sr-only">Sector: </span>
-                        {vacancy.sector || vacancy.department || "Sector not specified"}
-                      </p>
+                      {vacancy.sector || vacancy.department ? (
+                        <p className="text-body text-white/85">
+                          <span className="sr-only">Sector: </span>
+                          {vacancy.sector || vacancy.department}
+                        </p>
+                      ) : (
+                        <p className="hidden text-body text-white/40 md:block">
+                          <span aria-hidden="true">—</span>
+                          <span className="sr-only">Sector not specified</span>
+                        </p>
+                      )}
                       <div className="flex items-center justify-between gap-4">
                         <p className="flex items-center gap-2 text-body text-white/85">
                           <MapPin aria-hidden="true" className="h-4 w-4 shrink-0 text-gold" />
