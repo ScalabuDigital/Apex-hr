@@ -48,9 +48,9 @@ describe("Sector fan-out content", () => {
     }
   });
 
-  it("every enhanced sector is flagged for legal review", () => {
+  it("records legal approval (21 November 2026) for every enhanced sector", () => {
     for (const content of sectorContent) {
-      expect(content.legalReviewRequired, content.slug).toBe(true);
+      expect(content.legalReviewRequired, content.slug).toBe(false);
     }
   });
 });
