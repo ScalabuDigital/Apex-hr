@@ -143,6 +143,31 @@ export function SectorPageTemplate({ title, breadcrumbTrail, sector }: SectorPag
             </StaggerContainer>
           </section>
 
+          {sector.topics && sector.topics.length > 0 && (
+            <section id="topics" className="bg-surface-card p-8 sm:p-10 lg:p-14">
+              <RevealHeading className="grid grid-cols-1 gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
+                <div>
+                  <SectionKicker tone="light">HR topics we cover</SectionKicker>
+                  <h2 className="mt-4 max-w-md font-display text-h1 font-bold text-navy">
+                    HR and recruitment for {title.toLowerCase()}, in detail
+                  </h2>
+                </div>
+                {sector.topicsIntro && <p className="text-body text-text-secondary">{sector.topicsIntro}</p>}
+              </RevealHeading>
+
+              <StaggerContainer className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {sector.topics.map((topic) => (
+                  <StaggerItem key={topic.id}>
+                    <article className="flex h-full flex-col gap-3 rounded-md border border-border-subtle bg-surface-page p-6">
+                      <h3 className="font-display text-h4 font-bold text-navy">{topic.heading}</h3>
+                      <p className="text-body text-text-secondary">{topic.body}</p>
+                    </article>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </section>
+          )}
+
           <section className="grid grid-cols-1 bg-navy lg:grid-cols-2">
             <SlideInLeft className="relative min-h-64 overflow-hidden bg-linear-to-br from-navy via-slate to-gold/40 p-8 sm:p-10 lg:min-h-full lg:p-12">
               <div className="flex h-full items-end">
