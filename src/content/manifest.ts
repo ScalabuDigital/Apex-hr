@@ -249,7 +249,7 @@ function buildManifest(): ContentManifestEntry[] {
       h1: `HR Company for ${sector.title} in the UK`,
       parent: routes.sectors.path,
       relatedPages: content.relatedServiceSlugs.map((slug) => `/services/${slug}/`),
-      legalReviewRequired: false,
+      legalReviewRequired: content.legalReviewRequired ?? false,
     });
   }
 

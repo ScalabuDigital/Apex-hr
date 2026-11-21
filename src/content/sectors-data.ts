@@ -1,4 +1,5 @@
 import type { ContentFaqItem } from "@/types/content";
+import { sectorEnhancements, type SectorTopic } from "@/content/sectors-enhancements";
 
 /**
  * Original first-draft sector content — see src/content/services-data.ts
@@ -21,9 +22,15 @@ export interface SectorContent {
   relatedServiceSlugs: string[];
   relatedTalentRoleSlugs: string[];
   faqs: ContentFaqItem[];
+  /** Fan-out topic intro (sector SEO pass, docs/seo/sector-fan-out-research.md). */
+  topicsIntro?: string;
+  /** Sub-intent topic blocks, each answering a related query an employer in this sector searches. */
+  topics?: SectorTopic[];
+  /** True when topics or FAQs touch employment-law-adjacent matters. */
+  legalReviewRequired?: boolean;
 }
 
-export const sectorContent: SectorContent[] = [
+const baseSectorContent: SectorContent[] = [
   {
     slug: "hr-company-for-startups-and-scale-ups-in-the-uk",
     tagline: "People expertise built for fast-moving teams.",
@@ -399,3 +406,29 @@ export const sectorContent: SectorContent[] = [
     ],
   },
 ];
+
+/**
+ * Sector topical-authority pass (docs/seo/sector-fan-out-research.md,
+ * 21 November 2026): each base record is merged with its sector-specific
+ * enhancement — a richer meta description, two further challenges, extra
+ * curated related services, a set of fan-out topic blocks and further FAQs.
+ * The original FAQ is kept last. A sector without an enhancement falls back
+ * to its base record unchanged.
+ */
+export const sectorContent: SectorContent[] = baseSectorContent.map((sector) => {
+  const enhancement = sectorEnhancements[sector.slug];
+  if (!enhancement) return sector;
+  return {
+    ...sector,
+    metaDescription: enhancement.metaDescription,
+    challenges: [...sector.challenges, ...enhancement.extraChallenges],
+    relatedServiceSlugs: [
+      ...sector.relatedServiceSlugs,
+      ...enhancement.extraServiceSlugs.filter((slug) => !sector.relatedServiceSlugs.includes(slug)),
+    ],
+    topicsIntro: enhancement.topicsIntro,
+    topics: enhancement.topics,
+    faqs: [...enhancement.faqs, ...sector.faqs],
+    legalReviewRequired: enhancement.legalReviewRequired,
+  };
+});
