@@ -18,7 +18,9 @@ import type { ContentFaqItem } from "@/types/content";
  * - Regulators, schemes and checks are named only where they are a
  *   well-established feature of the sector, in informational, non-absolute
  *   language. Nothing here is legal advice, and no time-sensitive legal
- *   thresholds are hard-coded. Every record is flagged for legal review.
+ *   thresholds are hard-coded. Legal review of all 17 records was approved
+ *   on 21 November 2026 (see docs/seo/sector-fan-out-research.md). Any
+ *   later change to legal-adjacent copy needs fresh legal review.
  * - Every record is ai-draft / stakeholder-review-required via manifest.ts.
  */
 
@@ -122,7 +124,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Apex HR can review HR documentation and processes ahead of a round so gaps are found and addressed early. Legal due diligence itself remains with your legal advisers.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-professional-services-in-the-uk": {
@@ -197,7 +199,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Yes. A competency or career framework can be built around your firm's levels, service lines and values, with input from partners and managers so it reflects how work is actually done.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-healthcare-in-the-uk": {
@@ -272,7 +274,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Approaches often combine manageable rotas, good line management, access to support after difficult incidents and clear routes to raise concerns. A wellbeing strategy works best when it addresses the causes of pressure, not only the symptoms.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-life-sciences-in-the-uk": {
@@ -347,7 +349,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "International search can be scoped as part of the brief. Apex HR can support the HR side of sponsorship, while immigration advice should come from a regulated adviser.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-it-in-the-uk": {
@@ -422,7 +424,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Shorter, well-organised interview processes, quick feedback, competitive benchmarked offers and a clear story about the role usually make the biggest difference.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-financial-services-in-the-uk": {
@@ -497,7 +499,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Salary benchmarking can be scoped around specific roles, locations and peer groups, looking at the whole package as well as base pay.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-accountants-in-the-uk": {
@@ -572,7 +574,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Yes. Support can cover people due diligence, TUPE process, communication and harmonisation of terms after completion, alongside your legal advisers.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-architects-in-the-uk": {
@@ -647,7 +649,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Yes. Support can cover alternatives to redundancy, selection, consultation and communication, so the process is fair and well documented.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-care-homes-in-the-uk": {
@@ -722,7 +724,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Typically right-to-work, an enhanced DBS check with barred list check where eligible, references and a full employment history. Your regulator's requirements and your own policies should be followed.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-charity-in-the-uk": {
@@ -797,7 +799,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Plan early, look at alternative funding or redeployment, and follow a fair consultation and, where relevant, redundancy process. Take advice on the individual circumstances.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-construction-in-the-uk": {
@@ -872,7 +874,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Many construction employers do, for safety reasons. A clear, proportionate policy, consultation with staff and consent are usually needed. Apex HR can help draft and introduce a policy.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-distribution-in-the-uk": {
@@ -947,7 +949,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Yes. Support can cover preparation, collective consultation and negotiation on pay, shifts or changes to terms.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-education-in-the-uk": {
@@ -1022,7 +1024,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Recruitment support can be scoped for specific subjects and leadership roles, with safer recruitment built into the process.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-engineers-in-the-uk": {
@@ -1097,7 +1099,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Workforce planning identifies where retirements will create gaps, and succession planning and knowledge transfer help prepare successors in advance.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-leisure-in-the-uk": {
@@ -1172,7 +1174,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "It depends on the contract and hours pattern. Specific rules apply to irregular-hours and part-year workers, so a consistent method agreed with payroll is important.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-manufacturers-in-the-uk": {
@@ -1247,7 +1249,7 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "Start with the skills the new processes need, compare them with current capability and build targeted training, mentoring and progression routes around the gaps.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 
   "hr-company-for-hospitality-in-the-uk": {
@@ -1322,6 +1324,6 @@ export const sectorEnhancements: Record<string, SectorEnhancement> = {
           "A clear employer brand, honest job adverts, fair rotas, progression routes and a quick, respectful hiring process all help you stand out.",
       },
     ],
-    legalReviewRequired: true,
+    legalReviewRequired: false,
   },
 };

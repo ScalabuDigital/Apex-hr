@@ -2,7 +2,8 @@
 
 - Prepared: 21 November 2026
 - Scope: the 17 pages under `/sector/` (`sector-sitemap.xml`)
-- Status of all copy: `ai-draft`, `stakeholder-review-required` and `legalReviewRequired: true` (CLAUDE.md section 31)
+- Status of all copy: `ai-draft` and `stakeholder-review-required` (CLAUDE.md section 31)
+- Legal review: **approved 21 November 2026** for all 17 sectors; `legalReviewRequired` set to `false`
 - Data: `src/content/sectors-enhancements.ts`, merged in `src/content/sectors-data.ts`
 - Tests: `tests/unit/sector-fan-out.test.ts`
 
@@ -56,7 +57,7 @@ All topic headings and FAQ questions are unique across the 17 pages (tested), so
 
 ## 6. Review before indexing
 
-1. Legal review of every topic and FAQ marked with employment-law content (all 17 sectors).
+1. ~~Legal review of every topic and FAQ marked with employment-law content (all 17 sectors).~~ Approved 21 November 2026. Re-review any later edit to legal-adjacent copy.
 2. Stakeholder confirmation that Apex HR offers each linked service for that sector.
 3. Recheck after any change to immigration rules, employment-rights reforms, or the tips/holiday-pay rules.
 4. Once Search Console data exists, compare impressions for the sub-queries above and extend topics where real demand appears.
