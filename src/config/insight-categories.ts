@@ -31,7 +31,7 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "learning-development",
     title: "Learning & Development",
     summary: "Building leadership and workforce capability.",
-    wordpressCategorySlugs: [],
+    wordpressCategorySlugs: ["hr-leadership-in-uk"],
   },
   {
     slug: "performance-talent",
@@ -43,7 +43,7 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "reward",
     title: "Reward",
     summary: "Pay, benefits and reward strategy.",
-    wordpressCategorySlugs: [],
+    wordpressCategorySlugs: ["payroll-advisory-in-uk", "payroll-services-in-uk"],
   },
   {
     slug: "employee-experience",
