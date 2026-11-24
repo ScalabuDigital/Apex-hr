@@ -11,6 +11,11 @@
  * (see src/lib/insights/active-categories.ts). An empty list means "no
  * WordPress posts belong here yet", so the topic stays hidden. The mapping
  * is editorial: review it whenever WordPress categories are added or renamed.
+ * Related WordPress categories are grouped under a topic here rather than
+ * re-categorising posts in WordPress, which would change their SEO signals.
+ * Compliance, employment-law, policy and generic "HR services" categories
+ * fit none of the 8 approved topics and are deliberately left unmapped;
+ * those posts still appear in the main /insights/ article list.
  */
 
 export interface InsightCategoryItem {
@@ -37,13 +42,25 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "performance-talent",
     title: "Performance & Talent",
     summary: "Performance management, succession and talent decisions.",
-    wordpressCategorySlugs: ["talent-management-in-uk", "recruitment-talent-management-in-uk"],
+    wordpressCategorySlugs: [
+      "talent-management-in-uk",
+      "recruitment-talent-management-in-uk",
+      "recruitment-talent-acquisition-in-uk",
+      "recruitment-in-uk",
+      "permanent-recruitment-in-uk",
+      "executive-search-in-uk",
+      "recruitment-process-outsourcing-in-uk",
+    ],
   },
   {
     slug: "reward",
     title: "Reward",
     summary: "Pay, benefits and reward strategy.",
-    wordpressCategorySlugs: ["payroll-advisory-in-uk", "payroll-services-in-uk"],
+    wordpressCategorySlugs: [
+      "payroll-advisory-in-uk",
+      "payroll-services-in-uk",
+      "payroll-compliance-in-uk",
+    ],
   },
   {
     slug: "employee-experience",
@@ -61,13 +78,26 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "workforce-strategy",
     title: "Workforce Strategy",
     summary: "Strategic workforce planning and organisational design.",
-    wordpressCategorySlugs: ["workforce-management-in-uk"],
+    wordpressCategorySlugs: [
+      "workforce-management-in-uk",
+      "contract-staffing-in-uk",
+      "recruitment-and-staffing-in-uk",
+    ],
   },
   {
     slug: "people-strategy",
     title: "People Strategy",
     summary: "Connecting HR priorities to business strategy.",
-    wordpressCategorySlugs: ["people-strategy-in-uk"],
+    wordpressCategorySlugs: [
+      "people-strategy-in-uk",
+      "business-growth-in-uk",
+      "hr-consulting-in-uk",
+      "hr-consultancy-in-uk",
+      "hr-consultancy-2-in-uk",
+      "fractional-hr-in-uk",
+      "fractional-hr-director-services-in-uk",
+      "fractional-hr-director-services-in-manchester-in-uk",
+    ],
   },
 ];
 
