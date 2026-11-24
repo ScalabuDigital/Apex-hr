@@ -3,6 +3,7 @@ import { contentManifest } from "@/content/manifest";
 import { absoluteUrl } from "@/config/site";
 import { isReservedSlug } from "@/config/reserved-slugs";
 import { getAllPublishedPostsForSitemap, getOpenVacanciesForSitemap } from "@/lib/wordpress";
+import { getActiveInsightCategories } from "@/lib/insights/active-categories";
 
 /**
  * Single source of truth for grouped sitemap data, shared by every
@@ -124,7 +125,8 @@ export function getLocalSitemapGroups(): LocalSitemapGroups {
 }
 
 /**
- * The Insights group: indexable `insightCategory` manifest entries plus
+ * The Insights group: indexable `insightCategory` manifest entries that
+ * currently have published articles, plus
  * every currently-published WordPress article. Fetches WordPress, so this
  * (unlike `getLocalSitemapGroups`) carries the ~5-minute revalidation
  * window and never throws — an unreachable or misconfigured WordPress
@@ -133,9 +135,16 @@ export function getLocalSitemapGroups(): LocalSitemapGroups {
 export async function getInsightSitemapEntries(): Promise<SitemapUrlEntry[]> {
   const entries: SitemapUrlEntry[] = [];
 
+  // Insight category pages only exist while they have published articles
+  // (they 404 otherwise), so list only the currently active ones. When
+  // WordPress is unreachable, activity is unknown and none are listed.
+  const { categories: activeCategories } = await getActiveInsightCategories();
+  const activeCategorySlugs = new Set(activeCategories.map((category) => category.slug));
+
   for (const entry of contentManifest) {
     if (!entry.indexable) continue;
     if (classifyPageType(entry.pageType) !== "insight") continue;
+    if (entry.pageType === "insightCategory" && !activeCategorySlugs.has(entry.slug)) continue;
     entries.push({ loc: absoluteUrl(entry.canonicalPath) });
   }
 

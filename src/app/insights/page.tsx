@@ -6,7 +6,7 @@ import { EmptyEditorialState } from "@/components/content/empty-editorial-state"
 import { InsightCard } from "@/components/content/insight-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
-import { insightCategories } from "@/config/insight-categories";
+import { getActiveInsightCategories } from "@/lib/insights/active-categories";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { getPosts, toInsightPreview } from "@/lib/wordpress";
 import { routes } from "@/config/routes";
@@ -30,12 +30,16 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
   const requestedPage = Number(pageParam);
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
-  const { posts, totalPages, unavailable } = await getPosts({ page, perPage: POSTS_PER_PAGE });
+  const [{ posts, totalPages, unavailable }, { categories: activeCategories }] = await Promise.all([
+    getPosts({ page, perPage: POSTS_PER_PAGE }),
+    getActiveInsightCategories(),
+  ]);
   const insights = posts.map(toInsightPreview);
 
   // SEO renderability audit remediation: CollectionPage/ItemList JSON-LD
-  // for the 8 insight categories — the hub's own always-rendered,
-  // unconditional link list (see the <ul> below), matching exactly how
+  // for the insight categories that currently have published articles —
+  // the same list the hub renders as links (see the <ul> below). Topics
+  // with no posts are hidden from both. This matches how
   // the Services and Sector hubs already describe their own category
   // grids. Deliberately not built from the paginated `insights` articles
   // above: that list changes per page/session, while the category grid
@@ -46,7 +50,7 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
       path: routes.insights.path,
       name: "HR and workforce insights",
       description: "HR and workforce insights from Apex HR, organised by topic.",
-      items: insightCategories.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
+      items: activeCategories.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
     }),
     getBreadcrumbJsonLd(routes.home.label, [routes.insights]),
   ];
@@ -62,20 +66,22 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
         </h1>
         <p className="mt-4 text-lead text-text-secondary">
           Articles, guides and commentary on HR, recruitment and workforce
-          strategy, organised by topic below.
+          strategy, organised by topic.
         </p>
       </div>
 
-      <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {insightCategories.map((category) => (
-          <li key={category.slug} className="border border-border-subtle p-5">
-            <Link href={`/insights/${category.slug}/`} className="font-display text-h4 font-bold text-navy hover:underline">
-              {category.title}
-            </Link>
-            <p className="mt-2 text-body text-text-secondary">{category.summary}</p>
-          </li>
-        ))}
-      </ul>
+      {activeCategories.length > 0 && (
+        <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {activeCategories.map((category) => (
+            <li key={category.slug} className="border border-border-subtle p-5">
+              <Link href={`/insights/${category.slug}/`} className="font-display text-h4 font-bold text-navy hover:underline">
+                {category.title}
+              </Link>
+              <p className="mt-2 text-body text-text-secondary">{category.summary}</p>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="mt-10">
         {unavailable ? (

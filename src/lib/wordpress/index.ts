@@ -9,6 +9,7 @@ export {
   getPosts,
   getPostBySlug,
   getCategories,
+  getCategoryPostCounts,
   getRecentPosts,
   getRelatedPosts,
   getAllPublishedPostsForSitemap,

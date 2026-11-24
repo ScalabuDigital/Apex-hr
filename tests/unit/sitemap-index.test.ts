@@ -110,13 +110,13 @@ describe("4 & 5. Every indexable URL appears exactly once across the child sitem
     expect(new Set(actual).size).toBe(actual.length);
   });
 
-  it("totals 223 unique URLs across the seven child sitemaps in this WordPress-unconfigured test environment", async () => {
+  it("totals 215 unique URLs across the seven child sitemaps in this WordPress-unconfigured test environment (insight categories hidden)", async () => {
     const actual: string[] = [];
     for (const path of CHILD_SITEMAP_PATHS) {
       const { doc } = await xmlDocFrom(await CHILD_SITEMAP_HANDLERS[path]());
       actual.push(...locsOf(doc, "url"));
     }
-    expect(new Set(actual).size).toBe(223);
+    expect(new Set(actual).size).toBe(215);
   });
 });
 
