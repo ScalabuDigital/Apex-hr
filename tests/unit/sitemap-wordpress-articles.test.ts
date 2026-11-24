@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Article, Vacancy } from "@/lib/wordpress";
 
-const { getAllPublishedPostsForSitemap, getOpenVacanciesForSitemap } = vi.hoisted(() => ({
+const { getAllPublishedPostsForSitemap, getOpenVacanciesForSitemap, getCategoryPostCounts } = vi.hoisted(() => ({
   getAllPublishedPostsForSitemap: vi.fn(),
   getOpenVacanciesForSitemap: vi.fn().mockResolvedValue([]),
+  getCategoryPostCounts: vi.fn().mockResolvedValue(new Map<string, number>()),
 }));
 
-vi.mock("@/lib/wordpress", () => ({ getAllPublishedPostsForSitemap, getOpenVacanciesForSitemap }));
+vi.mock("@/lib/wordpress", () => ({ getAllPublishedPostsForSitemap, getOpenVacanciesForSitemap, getCategoryPostCounts }));
 
 const { getSitemapGroups, flattenSitemapGroups } = await import("@/lib/seo/sitemap-data");
 
@@ -164,16 +165,37 @@ describe("sitemap data — WordPress article entries", () => {
   it("contributes zero article entries (without failing) when WordPress is unavailable", async () => {
     getAllPublishedPostsForSitemap.mockResolvedValueOnce([]);
     const entries = await allEntries();
-    // 223 local, indexable manifest entries (211 + the Insights hub and its
-    // 8 categories, indexable since docs/URL-DECISION-REGISTER.md D-016, +
-    // the /privacy-policy/ and /partnership/ pages) — see
-    // tests/unit/final-consolidated-seo-phase.test.tsx for the authoritative
-    // count assertion.
-    expect(entries.length).toBe(223);
+    // 215 = the 223 local, indexable manifest entries minus the 8 insight
+    // category pages, which are only listed while they have published
+    // articles (none do with the default empty category counts mocked
+    // here) — see tests/unit/final-consolidated-seo-phase.test.tsx for the
+    // authoritative count assertion.
+    expect(entries.length).toBe(215);
   });
 
   it("handles an empty WordPress response gracefully", async () => {
     getAllPublishedPostsForSitemap.mockResolvedValueOnce([]);
     await expect(allEntries()).resolves.toBeInstanceOf(Array);
+  });
+
+  describe("sitemap data — insight category pages", () => {
+    it("lists only the insight categories whose mapped WordPress categories have posts", async () => {
+      getAllPublishedPostsForSitemap.mockResolvedValueOnce([]);
+      getCategoryPostCounts.mockResolvedValueOnce(new Map([["people-strategy-in-uk", 3]]));
+      const groups = await getSitemapGroups();
+      const paths = groups.insight.map((e) => new URL(e.loc).pathname);
+      expect(paths).toContain("/insights/people-strategy/");
+      expect(paths).not.toContain("/insights/reward/");
+      expect(paths).not.toContain("/insights/hr-technology/");
+    });
+
+    it("lists no insight category pages when WordPress category counts are unavailable", async () => {
+      getAllPublishedPostsForSitemap.mockResolvedValueOnce([]);
+      getCategoryPostCounts.mockResolvedValueOnce(null);
+      const groups = await getSitemapGroups();
+      expect(groups.insight.some((e) => /\/insights\/[^/]+\/$/.test(new URL(e.loc).pathname))).toBe(false);
+      const allPaths = flattenSitemapGroups(groups).map((e) => new URL(e.loc).pathname);
+      expect(allPaths).toContain("/insights/");
+    });
   });
 });

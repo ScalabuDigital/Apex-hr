@@ -193,6 +193,24 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<GetPostsR
   const page = options.page ?? 1;
   const perPage = options.perPage ?? 12;
 
+  const requestedSlugs = [
+    ...(options.categorySlug ? [options.categorySlug] : []),
+    ...(options.categorySlugs ?? []),
+  ];
+  let categoryIds: string | undefined;
+  if (requestedSlugs.length > 0) {
+    const ids = await resolveCategoryIds(requestedSlugs);
+    if (ids === null) {
+      return { posts: [], total: 0, totalPages: 0, page, unavailable: true };
+    }
+    // A category filter that matches no WordPress category must return no
+    // posts, never fall through to an unfiltered "all posts" request.
+    if (ids.length === 0) {
+      return { posts: [], total: 0, totalPages: 0, page, unavailable: false };
+    }
+    categoryIds = ids.join(",");
+  }
+
   const query = buildQuery({
     status: "publish",
     _embed: 1,
@@ -200,7 +218,7 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<GetPostsR
     order: "desc",
     page,
     per_page: perPage,
-    categories: options.categorySlug ? await resolveCategoryId(options.categorySlug) : undefined,
+    categories: categoryIds,
     search: options.search,
   });
 
@@ -245,10 +263,47 @@ export async function getCategories(): Promise<ArticleTerm[]> {
   return result.data.map((category) => ({ id: category.id, name: category.name, slug: category.slug }));
 }
 
-async function resolveCategoryId(categorySlug: string): Promise<number | undefined> {
-  const result = await wpFetch<WpRestCategory[]>(`/categories?slug=${encodeURIComponent(categorySlug)}`);
-  if (!result || !Array.isArray(result.data) || result.data.length === 0) return undefined;
-  return result.data[0].id;
+/**
+ * Resolves WordPress category slugs to their numeric IDs in one request.
+ * Returns `null` when WordPress is unavailable, so callers can tell "the
+ * CMS is down" apart from "none of these categories exist" (`[]`).
+ */
+async function resolveCategoryIds(categorySlugs: readonly string[]): Promise<number[] | null> {
+  const slugs = categorySlugs.map((slug) => encodeURIComponent(slug)).join(",");
+  const result = await wpFetch<WpRestCategory[]>(`/categories?slug=${slugs}&per_page=100&_fields=id,slug`);
+  if (!result || !Array.isArray(result.data)) return null;
+  return result.data.map((category) => category.id);
+}
+
+/** WordPress caps `per_page` at 100; stop after a sane number of pages. */
+const MAX_CATEGORY_PAGES = 5;
+
+/**
+ * Published-post counts for every non-empty WordPress category, keyed by
+ * category slug. Returns `null` (never a guessed or partial map) when
+ * WordPress is unconfigured, unreachable or returns a malformed response,
+ * so callers can render an honest "unavailable" state.
+ */
+export async function getCategoryPostCounts(): Promise<Map<string, number> | null> {
+  const counts = new Map<string, number>();
+
+  for (let page = 1; page <= MAX_CATEGORY_PAGES; page += 1) {
+    const result = await wpFetch<WpRestCategory[]>(
+      `/categories?per_page=100&page=${page}&hide_empty=true&_fields=id,slug,count`,
+    );
+    if (!result || !Array.isArray(result.data)) return null;
+
+    for (const category of result.data) {
+      if (typeof category.slug === "string" && Number(category.count) > 0) {
+        counts.set(category.slug, Number(category.count));
+      }
+    }
+
+    const totalPages = Number(result.headers.get("X-WP-TotalPages") ?? 1);
+    if (!Number.isFinite(totalPages) || page >= totalPages) break;
+  }
+
+  return counts;
 }
 
 function getVacancyStatus(value: string | undefined): VacancyStatus {
