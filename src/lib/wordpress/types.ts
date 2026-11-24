@@ -253,6 +253,8 @@ export interface GetPostsOptions {
   page?: number;
   perPage?: number;
   categorySlug?: string;
+  /** Posts in any of these WordPress category IDs. Ignored when `categorySlug` is set. */
+  categoryIds?: number[];
   search?: string;
 }
 

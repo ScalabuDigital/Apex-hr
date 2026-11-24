@@ -200,7 +200,11 @@ export async function getPosts(options: GetPostsOptions = {}): Promise<GetPostsR
     order: "desc",
     page,
     per_page: perPage,
-    categories: options.categorySlug ? await resolveCategoryId(options.categorySlug) : undefined,
+    categories: options.categorySlug
+      ? await resolveCategoryId(options.categorySlug)
+      : options.categoryIds?.length
+        ? options.categoryIds.join(",")
+        : undefined,
     search: options.search,
   });
 

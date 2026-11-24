@@ -348,3 +348,25 @@ describe("getCategories", () => {
     expect(await getCategories()).toEqual([]);
   });
 });
+
+describe("getPosts with categoryIds", () => {
+  it("filters by every mapped WordPress category ID in one request", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse([buildRawPost()], { headers: { "X-WP-Total": "1", "X-WP-TotalPages": "1" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const { getPosts } = await loadWordPress();
+    const result = await getPosts({ categoryIds: [61, 224] });
+    expect(result.posts).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const url = new URL(String((fetchMock.mock.calls[0] as unknown[])[0]));
+    expect(url.searchParams.get("categories")).toBe("61,224");
+  });
+
+  it("sends no category filter for an empty ID list", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse([]));
+    vi.stubGlobal("fetch", fetchMock);
+    const { getPosts } = await loadWordPress();
+    await getPosts({ categoryIds: [] });
+    const url = new URL(String((fetchMock.mock.calls[0] as unknown[])[0]));
+    expect(url.searchParams.has("categories")).toBe(false);
+  });
+});

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SectionKicker } from "@/components/ui/section-kicker";
@@ -6,9 +7,9 @@ import { EmptyEditorialState } from "@/components/content/empty-editorial-state"
 import { InsightCard } from "@/components/content/insight-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
-import { insightCategories } from "@/config/insight-categories";
+import { getMappedWordPressCategoryIds, insightCategories } from "@/config/insight-categories";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { getPosts, toInsightPreview } from "@/lib/wordpress";
+import { getCategories, getPosts, toInsightPreview } from "@/lib/wordpress";
 import { routes } from "@/config/routes";
 import { getBreadcrumbJsonLd, getCollectionPageJsonLd, toJsonLdScript } from "@/lib/seo/structured-data";
 
@@ -30,23 +31,32 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
   const requestedPage = Number(pageParam);
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
-  const { posts, totalPages, unavailable } = await getPosts({ page, perPage: POSTS_PER_PAGE });
+  const [{ posts, totalPages, unavailable }, wordpressCategories] = await Promise.all([
+    getPosts({ page, perPage: POSTS_PER_PAGE }),
+    getCategories(),
+  ]);
   const insights = posts.map(toInsightPreview);
 
+  // Only list approved topics that currently have published posts, via the
+  // WordPress category mapping in src/config/insight-categories.ts.
+  const topicsWithPosts = insightCategories.filter(
+    (category) => getMappedWordPressCategoryIds(category, wordpressCategories).length > 0,
+  );
+
   // SEO renderability audit remediation: CollectionPage/ItemList JSON-LD
-  // for the 8 insight categories — the hub's own always-rendered,
-  // unconditional link list (see the <ul> below), matching exactly how
-  // the Services and Sector hubs already describe their own category
-  // grids. Deliberately not built from the paginated `insights` articles
-  // above: that list changes per page/session, while the category grid
-  // is the hub's durable, canonical content — and per-article schema
-  // already exists on each article's own page (BlogPosting).
+  // for the insight topics that have posts — the hub's own rendered topic
+  // link list (see the <ul> below), matching exactly how the Services and
+  // Sector hubs already describe their own category grids. Deliberately not
+  // built from the paginated `insights` articles above: that list changes
+  // per page/session, while the topic grid is the hub's durable content —
+  // and per-article schema already exists on each article's own page
+  // (BlogPosting).
   const jsonLd = [
     getCollectionPageJsonLd({
       path: routes.insights.path,
       name: "HR and workforce insights",
       description: "HR and workforce insights from Apex HR, organised by topic.",
-      items: insightCategories.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
+      items: topicsWithPosts.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
     }),
     getBreadcrumbJsonLd(routes.home.label, [routes.insights]),
   ];
@@ -66,16 +76,31 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
         </p>
       </div>
 
-      <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {insightCategories.map((category) => (
-          <li key={category.slug} className="border border-border-subtle p-5">
-            <Link href={`/insights/${category.slug}/`} className="font-display text-h4 font-bold text-navy hover:underline">
-              {category.title}
-            </Link>
-            <p className="mt-2 text-body text-text-secondary">{category.summary}</p>
-          </li>
-        ))}
-      </ul>
+      {topicsWithPosts.length > 0 && (
+        <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {topicsWithPosts.map((category) => (
+            <li key={category.slug}>
+              {/* Whole tile is one link (matching ServiceCard), not just the title. */}
+              <Link
+                href={`/insights/${category.slug}/`}
+                className="group flex h-full flex-col border border-border-subtle bg-surface-card p-5 transition-colors duration-(--duration-fast) hover:border-navy focus-visible:border-navy"
+              >
+                <span className="font-display text-h4 font-bold text-navy group-hover:underline">
+                  {category.title}
+                </span>
+                <p className="mt-2 flex-1 text-body text-text-secondary">{category.summary}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-small font-semibold text-navy">
+                  Explore topic
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="h-4 w-4 text-gold transition-transform duration-(--duration-fast) group-hover:translate-x-1"
+                  />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="mt-10">
         {unavailable ? (
