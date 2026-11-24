@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SectionKicker } from "@/components/ui/section-kicker";
@@ -73,11 +74,24 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
       {activeCategories.length > 0 && (
         <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {activeCategories.map((category) => (
-            <li key={category.slug} className="border border-border-subtle p-5">
-              <Link href={`/insights/${category.slug}/`} className="font-display text-h4 font-bold text-navy hover:underline">
-                {category.title}
+            <li key={category.slug}>
+              {/* Whole tile is one link (matching ServiceCard), not just the title. */}
+              <Link
+                href={`/insights/${category.slug}/`}
+                className="group flex h-full flex-col border border-border-subtle bg-surface-card p-5 transition-colors duration-(--duration-fast) hover:border-navy focus-visible:border-navy"
+              >
+                <span className="font-display text-h4 font-bold text-navy group-hover:underline">
+                  {category.title}
+                </span>
+                <p className="mt-2 flex-1 text-body text-text-secondary">{category.summary}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-small font-semibold text-navy">
+                  Explore topic
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="h-4 w-4 text-gold transition-transform duration-(--duration-fast) group-hover:translate-x-1"
+                  />
+                </span>
               </Link>
-              <p className="mt-2 text-body text-text-secondary">{category.summary}</p>
             </li>
           ))}
         </ul>
