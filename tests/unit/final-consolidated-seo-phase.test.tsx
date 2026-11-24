@@ -255,17 +255,20 @@ describe("Route inventory and sitemap", () => {
     );
   });
 
-  it("sitemap contains exactly 223 URLs, matching the indexable manifest entries, with no lastModified field", async () => {
+  it("sitemap contains exactly 215 URLs, matching the indexable manifest entries minus the hidden insight categories, with no lastModified field", async () => {
     // WordPress is unconfigured in the test environment (no WORDPRESS_API_URL),
     // so sitemap() contributes zero article entries here — see
     // tests/unit/wordpress.test.ts for WordPress-specific sitemap coverage
-    // with a mocked API. 223 = the previous 222 local pages (211 + the
-    // Insights hub and its 8 category pages, per
-    // docs/URL-DECISION-REGISTER.md D-016) + /privacy-policy/, /partnership/
-    // and the confirmed Job Board (/jobs/, D-019).
+    // with a mocked API. 223 indexable manifest entries = 211 + the Insights
+    // hub and its 8 category pages (D-016) + /privacy-policy/, /partnership/
+    // and the confirmed Job Board (/jobs/, D-019). Insight category pages are
+    // only listed while they have published WordPress articles, and with
+    // WordPress unconfigured none do, so the sitemap holds 223 - 8 = 215.
     const entries = flattenSitemapGroups(await getSitemapGroups());
-    expect(entries.length).toBe(223);
-    expect(entries.length).toBe(contentManifest.filter((e) => e.indexable).length);
+    expect(entries.length).toBe(215);
+    const indexable = contentManifest.filter((e) => e.indexable);
+    expect(indexable.length).toBe(223);
+    expect(entries.length).toBe(indexable.filter((e) => e.pageType !== "insightCategory").length);
     for (const entry of entries) {
       expect(entry.lastModified).toBeUndefined();
     }
@@ -299,12 +302,12 @@ describe("Route inventory and sitemap", () => {
     }
   });
 
-  it("/insights/ and all 8 insight category pages now appear in the sitemap", async () => {
+  it("/insights/ appears in the sitemap, but insight category pages are left out while none has published articles", async () => {
     const entries = flattenSitemapGroups(await getSitemapGroups());
     const sitemapPaths = new Set(entries.map((e) => new URL(e.loc).pathname));
     expect(sitemapPaths.has(routes.insights.path)).toBe(true);
     for (const category of insightCategories) {
-      expect(sitemapPaths.has(`/insights/${category.slug}/`)).toBe(true);
+      expect(sitemapPaths.has(`/insights/${category.slug}/`)).toBe(false);
     }
   });
 });

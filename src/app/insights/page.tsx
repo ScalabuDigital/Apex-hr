@@ -7,9 +7,9 @@ import { EmptyEditorialState } from "@/components/content/empty-editorial-state"
 import { InsightCard } from "@/components/content/insight-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
-import { getMappedWordPressCategoryIds, insightCategories } from "@/config/insight-categories";
+import { getActiveInsightCategories } from "@/lib/insights/active-categories";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { getCategories, getPosts, toInsightPreview } from "@/lib/wordpress";
+import { getPosts, toInsightPreview } from "@/lib/wordpress";
 import { routes } from "@/config/routes";
 import { getBreadcrumbJsonLd, getCollectionPageJsonLd, toJsonLdScript } from "@/lib/seo/structured-data";
 
@@ -31,32 +31,27 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
   const requestedPage = Number(pageParam);
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
-  const [{ posts, totalPages, unavailable }, wordpressCategories] = await Promise.all([
+  const [{ posts, totalPages, unavailable }, { categories: activeCategories }] = await Promise.all([
     getPosts({ page, perPage: POSTS_PER_PAGE }),
-    getCategories(),
+    getActiveInsightCategories(),
   ]);
   const insights = posts.map(toInsightPreview);
 
-  // Only list approved topics that currently have published posts, via the
-  // WordPress category mapping in src/config/insight-categories.ts.
-  const topicsWithPosts = insightCategories.filter(
-    (category) => getMappedWordPressCategoryIds(category, wordpressCategories).length > 0,
-  );
-
   // SEO renderability audit remediation: CollectionPage/ItemList JSON-LD
-  // for the insight topics that have posts — the hub's own rendered topic
-  // link list (see the <ul> below), matching exactly how the Services and
-  // Sector hubs already describe their own category grids. Deliberately not
-  // built from the paginated `insights` articles above: that list changes
-  // per page/session, while the topic grid is the hub's durable content —
-  // and per-article schema already exists on each article's own page
-  // (BlogPosting).
+  // for the insight categories that currently have published articles —
+  // the same list the hub renders as links (see the <ul> below). Topics
+  // with no posts are hidden from both. This matches how
+  // the Services and Sector hubs already describe their own category
+  // grids. Deliberately not built from the paginated `insights` articles
+  // above: that list changes per page/session, while the category grid
+  // is the hub's durable, canonical content — and per-article schema
+  // already exists on each article's own page (BlogPosting).
   const jsonLd = [
     getCollectionPageJsonLd({
       path: routes.insights.path,
       name: "HR and workforce insights",
       description: "HR and workforce insights from Apex HR, organised by topic.",
-      items: topicsWithPosts.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
+      items: activeCategories.map((category) => ({ name: category.title, path: `/insights/${category.slug}/` })),
     }),
     getBreadcrumbJsonLd(routes.home.label, [routes.insights]),
   ];
@@ -72,13 +67,13 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
         </h1>
         <p className="mt-4 text-lead text-text-secondary">
           Articles, guides and commentary on HR, recruitment and workforce
-          strategy, organised by topic below.
+          strategy, organised by topic.
         </p>
       </div>
 
-      {topicsWithPosts.length > 0 && (
+      {activeCategories.length > 0 && (
         <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {topicsWithPosts.map((category) => (
+          {activeCategories.map((category) => (
             <li key={category.slug}>
               {/* Whole tile is one link (matching ServiceCard), not just the title. */}
               <Link

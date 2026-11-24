@@ -349,24 +349,83 @@ describe("getCategories", () => {
   });
 });
 
-describe("getPosts with categoryIds", () => {
-  it("filters by every mapped WordPress category ID in one request", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse([buildRawPost()], { headers: { "X-WP-Total": "1", "X-WP-TotalPages": "1" } }));
+describe("getCategoryPostCounts", () => {
+  it("maps each non-empty WordPress category slug to its post count", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      expect(url).toContain("/categories?");
+      expect(url).toContain("hide_empty=true");
+      return jsonResponse(
+        [
+          { id: 61, slug: "people-strategy-in-uk", count: 3 },
+          { id: 224, slug: "workforce-management-in-uk", count: 2 },
+          { id: 999, slug: "stale-empty", count: 0 },
+        ],
+        { headers: { "X-WP-TotalPages": "1" } },
+      );
+    });
     vi.stubGlobal("fetch", fetchMock);
-    const { getPosts } = await loadWordPress();
-    const result = await getPosts({ categoryIds: [61, 224] });
-    expect(result.posts).toHaveLength(1);
+
+    const { getCategoryPostCounts } = await loadWordPress();
+    const counts = await getCategoryPostCounts();
+
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const url = new URL(String((fetchMock.mock.calls[0] as unknown[])[0]));
-    expect(url.searchParams.get("categories")).toBe("61,224");
+    expect(counts?.get("people-strategy-in-uk")).toBe(3);
+    expect(counts?.get("workforce-management-in-uk")).toBe(2);
+    expect(counts?.has("stale-empty")).toBe(false);
   });
 
-  it("sends no category filter for an empty ID list", async () => {
+  it("follows X-WP-TotalPages across category pages", async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      url.includes("page=1&")
+        ? jsonResponse([{ id: 1, slug: "a", count: 1 }], { headers: { "X-WP-TotalPages": "2" } })
+        : jsonResponse([{ id: 2, slug: "b", count: 4 }], { headers: { "X-WP-TotalPages": "2" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getCategoryPostCounts } = await loadWordPress();
+    const counts = await getCategoryPostCounts();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(counts?.get("a")).toBe(1);
+    expect(counts?.get("b")).toBe(4);
+  });
+
+  it("returns null (not an empty map) when WordPress is unreachable", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("network down"); }));
+    const { getCategoryPostCounts } = await loadWordPress();
+    await expect(getCategoryPostCounts()).resolves.toBeNull();
+  });
+});
+
+describe("getPosts — categorySlugs filter", () => {
+  it("resolves several category slugs in one request and filters posts by all their IDs", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/categories?")) {
+        expect(url).toContain("slug=talent-management-in-uk,recruitment-talent-management-in-uk");
+        return jsonResponse([{ id: 146, slug: "talent-management-in-uk" }, { id: 257, slug: "recruitment-talent-management-in-uk" }]);
+      }
+      expect(url).toContain("categories=146%2C257");
+      return jsonResponse([buildRawPost()], { headers: { "X-WP-Total": "1", "X-WP-TotalPages": "1" } });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getPosts } = await loadWordPress();
+    const result = await getPosts({ categorySlugs: ["talent-management-in-uk", "recruitment-talent-management-in-uk"] });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.posts).toHaveLength(1);
+    expect(result.unavailable).toBe(false);
+  });
+
+  it("returns no posts — never every post — when no requested category exists", async () => {
     const fetchMock = vi.fn(async () => jsonResponse([]));
     vi.stubGlobal("fetch", fetchMock);
+
     const { getPosts } = await loadWordPress();
-    await getPosts({ categoryIds: [] });
-    const url = new URL(String((fetchMock.mock.calls[0] as unknown[])[0]));
-    expect(url.searchParams.has("categories")).toBe(false);
+    const result = await getPosts({ categorySlugs: ["does-not-exist"] });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.posts).toEqual([]);
+    expect(result.unavailable).toBe(false);
   });
 });

@@ -7,9 +7,10 @@ import { EmptyEditorialState } from "@/components/content/empty-editorial-state"
 import { InsightCard } from "@/components/content/insight-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
-import { getInsightCategory, getMappedWordPressCategoryIds, insightCategories } from "@/config/insight-categories";
+import { getInsightCategory, insightCategories } from "@/config/insight-categories";
+import { getActiveInsightCategories } from "@/lib/insights/active-categories";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { getCategories, getPosts, toInsightPreview } from "@/lib/wordpress";
+import { getPosts, toInsightPreview } from "@/lib/wordpress";
 import { routes } from "@/config/routes";
 import type { RouteRecord } from "@/types/route";
 import { getBreadcrumbJsonLd, getCollectionPageJsonLd, toJsonLdScript } from "@/lib/seo/structured-data";
@@ -25,7 +26,7 @@ export function generateStaticParams() {
   return insightCategories.map((category) => ({ category: category.slug }));
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: Pick<PageProps, "params">): Promise<Metadata> {
   const { category: slug } = await params;
   const category = getInsightCategory(slug);
   return buildMetadata({
@@ -48,6 +49,22 @@ export default async function InsightCategoryPage({ params, searchParams }: Page
   const requestedPage = Number(pageParam);
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
+  const [active, postsResult] = await Promise.all([
+    getActiveInsightCategories(),
+    getPosts({ page, perPage: POSTS_PER_PAGE, categorySlugs: category.wordpressCategorySlugs }),
+  ]);
+
+  // Only topics with published articles are real pages. When WordPress is
+  // unreachable we can't tell, so render the honest "unavailable" state
+  // rather than a 404 that would drop a live topic from search.
+  const unavailable = active.unavailable || postsResult.unavailable;
+  if (!unavailable && !active.categories.some((item) => item.slug === category.slug)) {
+    notFound();
+  }
+
+  const insights = postsResult.posts.map(toInsightPreview);
+  const { totalPages } = postsResult;
+
   const categoryRoute: RouteRecord = {
     id: category.slug,
     label: category.title,
@@ -56,25 +73,14 @@ export default async function InsightCategoryPage({ params, searchParams }: Page
     readyToIndex: routes.insights.readyToIndex,
   };
 
-  // Posts come from the WordPress categories mapped to this topic in
-  // src/config/insight-categories.ts. A topic with no mapped categories
-  // that have posts skips the posts request and shows the empty state
-  // (the /insights/ hub doesn't link to it in that case).
-  const categoryIds = getMappedWordPressCategoryIds(category, await getCategories());
-  const { posts, totalPages, unavailable } =
-    categoryIds.length > 0
-      ? await getPosts({ categoryIds, page, perPage: POSTS_PER_PAGE })
-      : { posts: [], totalPages: 0, unavailable: false };
-  const insights = posts.map(toInsightPreview);
-
-  // CollectionPage/ItemList JSON-LD lists exactly the articles rendered on
-  // this page, so the schema always matches the visible content.
+  // CollectionPage/ItemList JSON-LD lists exactly the articles rendered
+  // below, using their public root-level article URLs (D-016).
   const jsonLd = [
     getCollectionPageJsonLd({
       path: categoryRoute.path,
       name: `${category.title} Insights`,
       description: category.summary,
-      items: insights.map((insight) => ({ name: insight.title, path: insight.href })),
+      items: postsResult.posts.map((post) => ({ name: post.title, path: `/${post.slug}/` })),
     }),
     getBreadcrumbJsonLd(routes.home.label, [routes.insights, categoryRoute]),
   ];
@@ -123,7 +129,7 @@ export default async function InsightCategoryPage({ params, searchParams }: Page
             )}
           </>
         ) : (
-          <EmptyEditorialState message={`No ${category.title.toLowerCase()} articles are published yet.`} />
+          <EmptyEditorialState message="There are no more articles on this page." />
         )}
       </div>
     </Section>

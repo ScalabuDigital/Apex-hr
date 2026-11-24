@@ -4,21 +4,20 @@
  * category" rows (8 Confirmed/Corrected) in the Master Routes sheet of
  * docs/Apex_HR_Master_Sitemap_and_URL_Register.xlsx.
  *
- * Articles live in WordPress (D-016), whose own categories do not use these
- * 8 topic slugs. `wordpressCategorySlugs` maps each approved topic to the
- * WordPress categories whose posts belong under it; the /insights/ hub only
- * shows a topic when at least one mapped WordPress category has posts.
- * WordPress categories that fit no topic (e.g. "Uncategorized", "Content")
- * are deliberately left unmapped. Editors can extend a mapping here without
- * changing any public URL.
+ * `wordpressCategorySlugs` maps each approved topic onto the WordPress
+ * (blog.apexhrllc.co.uk) categories whose posts belong under it. A topic is
+ * only shown on /insights/, served at /insights/[slug]/ and listed in the
+ * sitemap while at least one mapped WordPress category has published posts
+ * (see src/lib/insights/active-categories.ts). An empty list means "no
+ * WordPress posts belong here yet", so the topic stays hidden. The mapping
+ * is editorial: review it whenever WordPress categories are added or renamed.
  */
 
 export interface InsightCategoryItem {
   slug: string;
   title: string;
   summary: string;
-  /** WordPress category slugs whose posts are listed under this topic. */
-  wordpressCategorySlugs: string[];
+  wordpressCategorySlugs: readonly string[];
 }
 
 export const insightCategories: InsightCategoryItem[] = [
@@ -32,7 +31,7 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "learning-development",
     title: "Learning & Development",
     summary: "Building leadership and workforce capability.",
-    wordpressCategorySlugs: ["hr-leadership-in-uk"],
+    wordpressCategorySlugs: [],
   },
   {
     slug: "performance-talent",
@@ -44,7 +43,7 @@ export const insightCategories: InsightCategoryItem[] = [
     slug: "reward",
     title: "Reward",
     summary: "Pay, benefits and reward strategy.",
-    wordpressCategorySlugs: ["payroll-advisory-in-uk", "payroll-services-in-uk"],
+    wordpressCategorySlugs: [],
   },
   {
     slug: "employee-experience",
@@ -74,17 +73,4 @@ export const insightCategories: InsightCategoryItem[] = [
 
 export function getInsightCategory(slug: string) {
   return insightCategories.find((category) => category.slug === slug);
-}
-
-/**
- * Resolves a topic's mapped WordPress category IDs from the list of
- * WordPress categories that currently have published posts (`getCategories`
- * already hides empty ones). An empty result means the topic has no posts.
- */
-export function getMappedWordPressCategoryIds(
-  category: InsightCategoryItem,
-  wordpressCategories: ReadonlyArray<{ id: number; slug: string }>,
-): number[] {
-  const wanted = new Set(category.wordpressCategorySlugs);
-  return wordpressCategories.filter((term) => wanted.has(term.slug)).map((term) => term.id);
 }
