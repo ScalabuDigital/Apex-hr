@@ -1,6 +1,6 @@
 import { absoluteUrl, siteConfig } from "@/config/site";
 import type { RouteRecord } from "@/types/route";
-import { stripHtmlToPlainText, type Vacancy } from "@/lib/wordpress";
+import { parseVacancyLocations, stripHtmlToPlainText, type Vacancy } from "@/lib/wordpress";
 
 /**
  * Organization + WebSite JSON-LD for the homepage, per CLAUDE.md section 16
@@ -226,6 +226,16 @@ export function getJobPostingJsonLd(vacancy: Vacancy) {
     vacancy.salaryCurrency &&
     vacancy.salaryUnit &&
     (vacancy.salaryMin !== null || vacancy.salaryMax !== null);
+  const places = parseVacancyLocations(vacancy.location);
+  const jobLocations = places.map((place) => ({
+    "@type": "Place",
+    address: {
+      "@type": "PostalAddress",
+      ...(place.locality ? { addressLocality: place.locality } : {}),
+      ...(place.countryCode ? { addressCountry: place.countryCode } : {}),
+    },
+  }));
+  const countryCodes = [...new Set(places.flatMap((place) => place.countryCode ?? []))];
   const salaryValue = {
     "@type": "QuantitativeValue",
     ...(vacancy.salaryMin !== null ? { minValue: vacancy.salaryMin } : {}),
@@ -246,22 +256,13 @@ export function getJobPostingJsonLd(vacancy: Vacancy) {
       name: siteConfig.legalName,
       sameAs: siteConfig.productionUrl,
     },
-    ...(vacancy.location
-      ? {
-          jobLocation: {
-            "@type": "Place",
-            address: {
-              "@type": "PostalAddress",
-              addressLocality: vacancy.location,
-              addressCountry: "GB",
-            },
-          },
-        }
-      : {}),
+    ...(jobLocations.length > 0 ? { jobLocation: jobLocations.length === 1 ? jobLocations[0] : jobLocations } : {}),
     ...(vacancy.workplaceArrangement === "Remote"
       ? {
           jobLocationType: "TELECOMMUTE",
-          applicantLocationRequirements: { "@type": "Country", name: "GB" },
+          ...(countryCodes.length > 0
+            ? { applicantLocationRequirements: countryCodes.map((name) => ({ "@type": "Country", name })) }
+            : {}),
         }
       : {}),
     ...(hasStructuredSalary
