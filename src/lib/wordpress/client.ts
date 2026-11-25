@@ -1,5 +1,6 @@
 import { siteConfig } from "@/config/site";
 import { isWordPressConfigured, wordpressConfig } from "./config";
+import { vacancyMatchesLocation } from "./locations";
 import {
   extractFirstImageFromHtml,
   sanitizeArticleHtml,
@@ -392,7 +393,6 @@ export function isVacancyOpen(vacancy: Vacancy, now = new Date()): boolean {
 export function filterVacancies(vacancies: Vacancy[], filters: VacancyQuery): Vacancy[] {
   const normalise = (value: string | undefined) => value?.trim().toLocaleLowerCase("en-GB") ?? "";
   const keyword = normalise(filters.keyword);
-  const location = normalise(filters.location);
   const sector = normalise(filters.sector);
   const employmentType = normalise(filters.employmentType);
   const workplaceArrangement = normalise(filters.workplaceArrangement);
@@ -413,7 +413,7 @@ export function filterVacancies(vacancies: Vacancy[], filters: VacancyQuery): Va
 
     return (
       (!keyword || searchable.includes(keyword)) &&
-      (!location || normalise(vacancy.location) === location) &&
+      (!filters.location || vacancyMatchesLocation(vacancy.location, filters.location)) &&
       (!sector || normalise(vacancy.sector) === sector) &&
       (!employmentType || normalise(vacancy.employmentType) === employmentType) &&
       (!workplaceArrangement || normalise(vacancy.workplaceArrangement) === workplaceArrangement) &&

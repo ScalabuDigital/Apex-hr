@@ -24,6 +24,7 @@ export {
   getOpenVacanciesForSitemap,
   normalizePost,
 } from "./client";
+export { parseVacancyLocations, vacancyMatchesLocation } from "./locations";
 export { isWordPressConfigured, wordpressConfig } from "./config";
 export { toInsightPreview, INSIGHT_IMAGE_PLACEHOLDER } from "./adapters";
 export { sanitizeArticleHtml, stripHtmlToPlainText, rewriteWordPressLink, decodeHtmlEntities } from "./sanitize";

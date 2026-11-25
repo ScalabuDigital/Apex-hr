@@ -213,6 +213,46 @@ describe("Job Board rendering and structured data", () => {
     expect(data).not.toHaveProperty("telephone");
   });
 
+  it("marks up each country a vacancy covers instead of assuming Great Britain", () => {
+    const address = (location: string) => {
+      const value = getJobPostingJsonLd(buildVacancy({ location })).jobLocation;
+      return [value].flat().map((place) => place?.address);
+    };
+
+    expect(address("Nigeria")).toEqual([{ "@type": "PostalAddress", addressCountry: "NG" }]);
+    expect(address("United States / Canada").map((entry) => entry?.addressCountry)).toEqual(["US", "CA"]);
+    expect(address("USA, UK, UAE").map((entry) => entry?.addressCountry)).toEqual(["US", "GB", "AE"]);
+    expect(address("London")).toEqual([{ "@type": "PostalAddress", addressLocality: "London", addressCountry: "GB" }]);
+    expect(address("Lagos, Nigeria")).toEqual([{ "@type": "PostalAddress", addressLocality: "Lagos", addressCountry: "NG" }]);
+    expect(address("Somewhere")).toEqual([{ "@type": "PostalAddress", addressLocality: "Somewhere" }]);
+    expect(getJobPostingJsonLd(buildVacancy({ location: "" }))).not.toHaveProperty("jobLocation");
+    expect(
+      getJobPostingJsonLd(buildVacancy({ location: "Nigeria, Ghana", workplaceArrangement: "Remote" })),
+    ).toMatchObject({ applicantLocationRequirements: [{ name: "NG" }, { name: "GH" }] });
+  });
+
+  it("offers and matches individual countries in the location filter", async () => {
+    const { filterVacancies } = await loadWordPress();
+    const vacancies = [
+      buildVacancy({ id: 1, location: "USA, UK, Nigeria" }),
+      buildVacancy({ id: 2, location: "United States / Canada" }),
+      buildVacancy({ id: 3, location: "Nigeria" }),
+    ];
+    const ids = (location: string) => filterVacancies(vacancies, { location }).map((vacancy) => vacancy.id);
+
+    expect(ids("Nigeria")).toEqual([1, 3]);
+    expect(ids("United States")).toEqual([1, 2]);
+    expect(ids("USA, UK, Nigeria")).toEqual([1]);
+    expect(ids("France")).toEqual([]);
+
+    const html = renderToString(
+      <VacancyArchive allVacancies={vacancies} vacancies={vacancies} filters={{}} page={1} unavailable={false} />,
+    );
+    expect(html).toContain('<option value="United Kingdom">');
+    expect(html.match(/<option value="Nigeria">/g)).toHaveLength(1);
+    expect(html).not.toContain('<option value="USA, UK, Nigeria">');
+  });
+
   it("accepts a correctly typed PDF CV and rejects a mismatched MIME type", async () => {
     const validPdf = new File(["%PDF-1.7"], "cv.pdf", { type: "application/pdf" });
     const mismatchedPdf = new File(["%PDF-1.7"], "cv.pdf", { type: "text/plain" });

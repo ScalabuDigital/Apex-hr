@@ -6,7 +6,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { AutoSubmitSelect } from "@/components/jobs/auto-submit-select";
 import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
-import type { Vacancy, VacancyQuery } from "@/lib/wordpress";
+import { parseVacancyLocations, type Vacancy, type VacancyQuery } from "@/lib/wordpress";
 
 const PAGE_SIZE = 12;
 
@@ -21,8 +21,8 @@ interface VacancyArchiveProps {
   unavailable: boolean;
 }
 
-function distinctValues(vacancies: Vacancy[], pick: (vacancy: Vacancy) => string): string[] {
-  return [...new Set(vacancies.map(pick).filter(Boolean))].sort((a, b) => a.localeCompare(b, "en-GB"));
+function distinctValues(vacancies: Vacancy[], pick: (vacancy: Vacancy) => string | string[]): string[] {
+  return [...new Set(vacancies.flatMap(pick).filter(Boolean))].sort((a, b) => a.localeCompare(b, "en-GB"));
 }
 
 function formatClosingDate(value: string): string | null {
@@ -88,7 +88,7 @@ export function VacancyArchive({ allVacancies, vacancies, filters, page, unavail
   const totalPages = Math.max(1, Math.ceil(vacancies.length / PAGE_SIZE));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const visibleVacancies = vacancies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const locations = distinctValues(allVacancies, (vacancy) => vacancy.location);
+  const locations = distinctValues(allVacancies, (vacancy) => parseVacancyLocations(vacancy.location).map((place) => place.label));
   const sectors = distinctValues(allVacancies, (vacancy) => vacancy.sector);
   const employmentTypes = distinctValues(allVacancies, (vacancy) => vacancy.employmentType);
   const arrangements = distinctValues(allVacancies, (vacancy) => vacancy.workplaceArrangement);

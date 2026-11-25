@@ -8,7 +8,8 @@ const { getVacancyBySlug, getOpenVacancies, isVacancyOpen } = vi.hoisted(() => (
   isVacancyOpen: vi.fn(),
 }));
 
-vi.mock("@/lib/wordpress", () => ({
+vi.mock("@/lib/wordpress", async () => ({
+  parseVacancyLocations: (await import("@/lib/wordpress/locations")).parseVacancyLocations,
   getVacancyBySlug,
   getOpenVacancies,
   isVacancyOpen,
